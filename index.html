@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eF Warriors</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: white;
+      padding: 16px;
+    }
+    h1 {
+      text-align: center;
+      color: #FFD700;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .tab {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #1e1e1e;
+      color: #aaa;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .tab.active {
+      background: #FFD700;
+      color: #000;
+      font-weight: bold;
+    }
+    .section { display: none; }
+    .section.active { display: block; }
+    .card {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .card h3 { color: #FFD700; margin-bottom: 6px; }
+    .card p { color: #aaa; font-size: 13px; }
+    .btn {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: #FFD700;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .match {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .match .score {
+      font-size: 20px;
+      font-weight: bold;
+      color: #FFD700;
+    }
+    .bracket { display: flex; flex-direction: column; gap: 10px; }
+    .b-match {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 12px;
+      border-left: 4px solid #FFD700;
+    }
+    .b-match span { display: block; font-size: 14px; padding: 2px 0; }
+  </style>
+</head>
+<body>
+
+<h1>⚡ eF Warriors</h1>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('tournaments', this)">🏆 Turnirlar</button>
+  <button class="tab" onclick="show('results', this)">📊 Natijalar</button>
+  <button class="tab" onclick="show('bracket', this)">🗂 Bracket</button>
+</div>
+
+<div id="tournaments" class="section active">
+  <div class="card">
+    <h3>🌍 World Cup 2026</h3>
+    <p>📅 Sana: 1-iyul, 2026</p>
+    <p>👥 Ishtirokchilar: 4/32</p>
+    <p>💰 Sovrin: 500,000 so'm</p>
+    <button class="btn">📝 Yozilish</button>
+  </div>
+  <div class="card">
+    <h3>🏅 eF Cup #3</h3>
+    <p>📅 Sana: 10-iyul, 2026</p>
+    <p>👥 Ishtirokchilar: 0/16</p>
+    <p>💰 Sovrin: 200,000 so'm</p>
+    <button class="btn">📝 Yozilish</button>
+  </div>
+</div>
+
+<div id="results" class="section">
+  <div class="match">
+    <span>Ali</span>
+    <span class="score">3 : 1</span>
+    <span>Vali</span>
+  </div>
+  <div class="match">
+    <span>Jasur</span>
+    <span class="score">2 : 2</span>
+    <span>Timur</span>
+  </div>
+  <div class="match">
+    <span>John</span>
+    <span class="score">4 : 0</span>
+    <span>Ivan</span>
+  </div>
+</div>
+
+<div id="bracket" class="section">
+  <div class="bracket">
+    <div class="b-match">
+      <span>🔵 Ali</span>
+      <span>🔴 Vali</span>
+    </div>
+    <div class="b-match">
+      <span>🔵 Jasur</span>
+      <span>🔴 Timur</span>
+    </div>
+    <div class="b-match">
+      <span>🔵 John</span>
+      <span>🔴 Ivan</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  Telegram.WebApp.ready();
+  Telegram.WebApp.expand();
+
+  function show(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
