@@ -109,9 +109,80 @@
 </head>
 <body>
 
+<style>
+  #splash {
+    position: fixed; inset: 0; background: #0a0d1a;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 9999; transition: opacity 0.6s ease;
+  }
+  #splash.fade-out { opacity: 0; pointer-events: none; }
+  .splash-ball {
+    font-size: 56px;
+    animation: ballBounce 0.8s ease infinite alternate;
+    margin-bottom: 24px;
+  }
+  @keyframes ballBounce {
+    from { transform: translateY(-12px); }
+    to   { transform: translateY(12px); }
+  }
+  .splash-title {
+    font-size: 32px; font-weight: 900; letter-spacing: 3px;
+    background: linear-gradient(90deg, #00d4ff, #6c63ff, #00d4ff);
+    background-size: 200% auto;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    animation: shimmer 1.8s linear infinite;
+    margin-bottom: 6px;
+  }
+  @keyframes shimmer {
+    from { background-position: 0% center; }
+    to   { background-position: 200% center; }
+  }
+  .splash-sub {
+    font-size: 13px; color: #556699; letter-spacing: 4px; font-weight: 700;
+    animation: fadeIn 1s ease forwards;
+    opacity: 0;
+    animation-delay: 0.4s;
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+  .splash-dots {
+    display: flex; gap: 8px; margin-top: 40px;
+  }
+  .splash-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #1e2545;
+    animation: dotPulse 1.2s ease infinite;
+  }
+  .splash-dot:nth-child(1) { animation-delay: 0s; }
+  .splash-dot:nth-child(2) { animation-delay: 0.2s; }
+  .splash-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dotPulse {
+    0%, 100% { background: #1e2545; transform: scale(1); }
+    50% { background: #00d4ff; transform: scale(1.4); }
+  }
+</style>
+
+<div id="splash">
+  <div class="splash-ball">⚽</div>
+  <div class="splash-title">eF Warriors</div>
+  <div class="splash-dots">
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+  </div>
+</div>
+
+<script>
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      var splash = document.getElementById('splash');
+      splash.classList.add('fade-out');
+      setTimeout(function() { splash.style.display = 'none'; }, 600);
+    }, 2200);
+  });
+</script>
+
 <div class="header">
   <div class="logo-box">⚽</div>
-  <span class="logo-text">APL BOT</span>
   <span class="lang-badge">UZ</span>
 </div>
 
@@ -141,6 +212,41 @@
     <div class="card" id="schedule-card" style="display:none">
       <div style="font-weight:800;font-size:15px;margin-bottom:14px">📅 Jadval</div>
       <div id="schedule-list"></div>
+    </div>
+
+    <!-- QOIDALAR -->
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <span style="font-size:20px">📋</span>
+        <span style="font-weight:800;font-size:16px">Qoidalar</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+        <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:#00d4ff;font-size:12px;margin-top:2px">▶</span><span style="font-size:13px;color:#ccd">O'yin 8 daqiqa davom etadi.</span></div>
+        <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:#00d4ff;font-size:12px;margin-top:2px">▶</span><span style="font-size:13px;color:#ccd">Ikkitalik himoya yoqish mumkin emas.</span></div>
+        <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:#00d4ff;font-size:12px;margin-top:2px">▶</span><span style="font-size:13px;color:#ccd">O'yinchilar holati "Excellent" bo'lishi kerak.</span></div>
+        <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:#00d4ff;font-size:12px;margin-top:2px">▶</span><span style="font-size:13px;color:#ccd">Extra time va penalti yo'q.</span></div>
+        <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:#00d4ff;font-size:12px;margin-top:2px">▶</span><span style="font-size:13px;color:#ccd">Bir o'yinda to'pni tepib yuborish (очистить) soni 5 ta. Undan oshsa video isbot bilan adminga murojaat qiling.</span></div>
+        <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:#00d4ff;font-size:12px;margin-top:2px">▶</span><span style="font-size:13px;color:#ccd">Deadline har kuni tungi soat <span style="color:#fff;font-weight:800">00:00</span> da.</span></div>
+        <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:#00d4ff;font-size:12px;margin-top:2px">▶</span><span style="font-size:13px;color:#ccd">Agar raqib javob bermasa yoki hisobni noto'g'ri kiritsa — rasm yoki video bilan adminga murojaat qiling.</span></div>
+      </div>
+      <div style="border-top:1px solid #1e2545;padding-top:14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px">
+        <span style="font-size:16px">📢</span>
+        <span style="font-size:12px;color:#8899cc;line-height:1.5">Bot a'zo bo'lishni so'ragan kanalda yangiliklar joriy qilinadi.</span>
+      </div>
+      <div style="font-size:12px;color:#667799;line-height:1.7;margin-bottom:14px">
+        Batafsil: Botni haqiqiy futbol formatiga asta-sekin o'tkazib boramiz. Ishtirokchilar soni oshsa, ligalar soni 5 taga oshiriladi va Chempionlar ligasi ham qo'shiladi. Milliy ligadagi 1-o'rindan 6-o'ringacha bo'lgan klublar Chempionlar ligasida qatnashish imkoniyatiga ega bo'lishadi.
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <span style="font-size:16px">🏆</span>
+        <span style="font-size:12px;color:#8899cc;line-height:1.5">Sovrinlar masalasida homiylarga mutanosib ravishda pul ham beriladi.</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-top:14px;background:#0d1225;border:1px solid #1e2545;border-radius:12px;padding:12px 14px">
+        <span style="font-size:16px">👨‍💼</span>
+        <div>
+          <div style="font-size:12px;color:#8899cc;margin-bottom:4px">Savol va muammolar bo'lsa:</div>
+          <a href="https://t.me/yusupbaevvvv" target="_blank" style="font-size:14px;font-weight:800;color:#00d4ff;text-decoration:none">@yusupbaevvvv</a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -240,32 +346,52 @@
 <!-- SCORE MODAL -->
 <div class="overlay hidden" id="score-overlay">
   <div class="modal" id="score-modal">
-    <div class="modal-header">
-      <div class="modal-title">Natija kiritish</div>
-      <button class="modal-close" id="score-close">✕</button>
-    </div>
-    <div class="score-vs">
-      <div class="score-team">
-        <img id="score-my-logo" src="" alt="" style="width:48px;height:48px;object-fit:contain;margin-bottom:6px;display:block;margin-left:auto;margin-right:auto">
-        <div class="score-team-name" id="score-my-name">Sen</div>
+    <div style="text-align:center;font-weight:800;font-size:17px;margin-bottom:20px">Natija kiritish</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:8px">
+      <div style="flex:1;text-align:center">
+        <img id="score-my-logo" src="" alt="" style="width:52px;height:52px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto">
+        <div style="font-size:12px;font-weight:700;color:#aab" id="score-my-name">Sen</div>
       </div>
-      <div class="vs-text">vs</div>
-      <div class="score-team">
-        <img id="score-opp-logo" src="" alt="" style="width:48px;height:48px;object-fit:contain;margin-bottom:6px;display:block;margin-left:auto;margin-right:auto">
-        <div class="score-team-name" id="score-opp-name">Raqib</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input type="number" class="score-input" id="input-my" min="0" max="20" placeholder="0" style="width:68px">
+        <span style="color:#556699;font-size:22px;font-weight:900">:</span>
+        <input type="number" class="score-input" id="input-opp" min="0" max="20" placeholder="0" style="width:68px">
       </div>
-    </div>
-    <div class="score-inputs">
-      <div class="score-input-wrap">
-        <div class="score-input-label">Sizning gollar</div>
-        <input type="number" class="score-input" id="input-my" min="0" max="20" placeholder="0">
-      </div>
-      <div class="score-input-wrap">
-        <div class="score-input-label">Raqib gollari</div>
-        <input type="number" class="score-input" id="input-opp" min="0" max="20" placeholder="0">
+      <div style="flex:1;text-align:center">
+        <img id="score-opp-logo" src="" alt="" style="width:52px;height:52px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto">
+        <div style="font-size:12px;font-weight:700;color:#aab" id="score-opp-name">Raqib</div>
       </div>
     </div>
-    <button class="submit-btn" id="submit-score-btn">Natijani yuborish</button>
+    <div style="display:flex;gap:10px">
+      <button id="score-close" style="flex:1;background:#1a2040;border:none;border-radius:12px;padding:14px 0;color:#778899;font-weight:700;font-size:14px;cursor:pointer">Bekor</button>
+      <button class="submit-btn" id="submit-score-btn" style="flex:2">Yuborish</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT PANEL -->
+<div class="overlay hidden" id="chat-overlay">
+  <div class="modal" id="chat-modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div></div>
+      <button id="chat-close" style="width:32px;height:32px;background:#1a2040;border:none;border-radius:50%;color:#778899;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-around;margin-bottom:24px">
+      <div style="text-align:center">
+        <img id="chat-my-logo" src="" alt="" style="width:64px;height:64px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto">
+        <div style="font-weight:800;font-size:14px;margin-bottom:4px" id="chat-my-name"></div>
+        <div style="font-size:11px;color:#556699" id="chat-my-user"></div>
+      </div>
+      <div style="font-size:16px;font-weight:800;color:#334466">VS</div>
+      <div style="text-align:center">
+        <img id="chat-opp-logo" src="" alt="" style="width:64px;height:64px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto">
+        <div style="font-weight:800;font-size:14px;margin-bottom:4px" id="chat-opp-name"></div>
+        <div style="font-size:11px;color:#556699" id="chat-opp-user"></div>
+      </div>
+    </div>
+    <a id="chat-link" href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(90deg,#00b4d8,#0077b6);border-radius:14px;padding:15px 0;color:#fff;font-weight:700;font-size:15px;text-decoration:none">
+      💬 Raqib chatiga yozish
+    </a>
   </div>
 </div>
 
@@ -287,26 +413,26 @@
 
 <script>
 var TEAMS = [
-  { name: "Arsenal", logo: "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg" },
-  { name: "Aston Villa", logo: "https://upload.wikimedia.org/wikipedia/en/f/f9/Aston_Villa_FC_crest_%282016%29.svg" },
-  { name: "Bournemouth", logo: "https://upload.wikimedia.org/wikipedia/en/e/e5/AFC_Bournemouth_%282013%29.svg" },
-  { name: "Brentford", logo: "https://upload.wikimedia.org/wikipedia/en/2/2a/Brentford_FC_crest.svg" },
-  { name: "Brighton", logo: "https://upload.wikimedia.org/wikipedia/en/f/fd/Brighton_%26_Hove_Albion_logo.svg" },
-  { name: "Chelsea", logo: "https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg" },
-  { name: "Crystal Palace", logo: "https://upload.wikimedia.org/wikipedia/en/a/a2/Crystal_Palace_FC_logo_%282022%29.svg" },
-  { name: "Everton", logo: "https://upload.wikimedia.org/wikipedia/en/7/7c/Everton_FC_logo.svg" },
-  { name: "Fulham", logo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Fulham_FC_%28shield%29.svg" },
-  { name: "Ipswich", logo: "https://upload.wikimedia.org/wikipedia/en/4/43/Ipswich_Town.svg" },
-  { name: "Leicester", logo: "https://upload.wikimedia.org/wikipedia/en/2/2d/Leicester_City_crest.svg" },
-  { name: "Liverpool", logo: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" },
-  { name: "Man City", logo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg" },
-  { name: "Man United", logo: "https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg" },
-  { name: "Newcastle", logo: "https://upload.wikimedia.org/wikipedia/en/5/56/Newcastle_United_Logo.svg" },
-  { name: "Nottm Forest", logo: "https://upload.wikimedia.org/wikipedia/en/e/e5/Nottingham_Forest_F.C._logo.svg" },
-  { name: "Southampton", logo: "https://upload.wikimedia.org/wikipedia/en/c/c9/FC_Southampton.svg" },
-  { name: "Tottenham", logo: "https://upload.wikimedia.org/wikipedia/en/b/b4/Tottenham_Hotspur.svg" },
-  { name: "West Ham", logo: "https://upload.wikimedia.org/wikipedia/en/c/c2/West_Ham_United_FC_logo.svg" },
-  { name: "Wolves", logo: "https://upload.wikimedia.org/wikipedia/en/f/fc/Wolverhampton_Wanderers.svg" }
+  { name: "Arsenal", logo: "https://resources.premierleague.com/premierleague/badges/t3.png" },
+  { name: "Aston Villa", logo: "https://resources.premierleague.com/premierleague/badges/t7.png" },
+  { name: "Bournemouth", logo: "https://resources.premierleague.com/premierleague/badges/t91.png" },
+  { name: "Brentford", logo: "https://resources.premierleague.com/premierleague/badges/t94.png" },
+  { name: "Brighton", logo: "https://resources.premierleague.com/premierleague/badges/t36.png" },
+  { name: "Chelsea", logo: "https://resources.premierleague.com/premierleague/badges/t8.png" },
+  { name: "Crystal Palace", logo: "https://resources.premierleague.com/premierleague/badges/t31.png" },
+  { name: "Everton", logo: "https://resources.premierleague.com/premierleague/badges/t11.png" },
+  { name: "Fulham", logo: "https://resources.premierleague.com/premierleague/badges/t54.png" },
+  { name: "Ipswich", logo: "https://resources.premierleague.com/premierleague/badges/t40.png" },
+  { name: "Leicester", logo: "https://resources.premierleague.com/premierleague/badges/t13.png" },
+  { name: "Liverpool", logo: "https://resources.premierleague.com/premierleague/badges/t14.png" },
+  { name: "Man City", logo: "https://resources.premierleague.com/premierleague/badges/t43.png" },
+  { name: "Man United", logo: "https://resources.premierleague.com/premierleague/badges/t1.png" },
+  { name: "Newcastle", logo: "https://resources.premierleague.com/premierleague/badges/t4.png" },
+  { name: "Nottm Forest", logo: "https://resources.premierleague.com/premierleague/badges/t17.png" },
+  { name: "Southampton", logo: "https://resources.premierleague.com/premierleague/badges/t20.png" },
+  { name: "Tottenham", logo: "https://resources.premierleague.com/premierleague/badges/t6.png" },
+  { name: "West Ham", logo: "https://resources.premierleague.com/premierleague/badges/t21.png" },
+  { name: "Wolves", logo: "https://resources.premierleague.com/premierleague/badges/t39.png" }
 ];
 
 var MAX_PLAYERS = 20;
@@ -369,7 +495,7 @@ loadState();
     var joinArea = document.getElementById('join-area');
     joinArea.innerHTML = '<div class="joined-btn">✅ ' + team.name + ' — Qo\'shildingiz</div>';
     document.getElementById('profile-avatar').innerHTML = '<img class="profile-logo" src="' + team.logo + '" alt="' + team.name + '">';
-    document.getElementById('profile-name').textContent = getUserName();
+    document.getElementById('profile-name').textContent = team.name;
     document.getElementById('profile-name').className = 'profile-name joined';
     document.getElementById('profile-user').textContent = getUserUsername();
   }
@@ -486,7 +612,7 @@ document.getElementById('join-confirm-btn').addEventListener('click', function()
 
   // Update profile card
   document.getElementById('profile-avatar').innerHTML = '<img class="profile-logo" src="' + team.logo + '" alt="' + team.name + '">';
-  document.getElementById('profile-name').textContent = getUserName();
+  document.getElementById('profile-name').textContent = team.name;
   document.getElementById('profile-name').className = 'profile-name joined';
   document.getElementById('profile-user').textContent = getUserUsername();
 
@@ -615,235 +741,7 @@ function renderScheduleCard(schedule) {
   var myIndex = (state.joinedTeam) ? state.joinedTeam.index : -1;
 
   // Qura hali tashlanmagan bolsa, faqat oz jamoasini korsatsin
-  if (!state.drawDone || !schedule || schedule.length === 0) {
-    if (state.joined && state.joinedTeam) {
-      var myTeam = state.joinedTeam;
-      var infoDiv = document.createElement('div');
-      infoDiv.style.cssText = 'display:flex;align-items:center;gap:10px;background:#1a1060;border:1px solid #6c63ff55;border-radius:12px;padding:12px 14px;margin-bottom:10px;';
-      infoDiv.innerHTML = '<img src="' + myTeam.logo + '" style="width:28px;height:28px;object-fit:contain">' +
-        '<div><div style="font-size:13px;font-weight:800;color:#00d4ff">' + myTeam.name + '</div>' +
-        '<div style="font-size:11px;color:#556699;margin-top:2px">Sizning jamoangiz</div></div>' +
-        '<div style="margin-left:auto;font-size:11px;color:#556699">' + state.participants + '/20</div>';
-      list.appendChild(infoDiv);
-      var waitDiv = document.createElement('div');
-      waitDiv.style.cssText = 'text-align:center;color:#556699;font-size:12px;padding:10px 0;';
-      waitDiv.textContent = "Qura " + (20 - state.participants) + " ta o'yinchi qolganda tashlanadi";
-      list.appendChild(waitDiv);
-    }
-    return;
-  }
-
-  var currentRound = 0;
-  schedule.forEach(function(match) {
-    if (match.round !== currentRound) {
-      currentRound = match.round;
-      var lbl = document.createElement('div');
-      lbl.style.cssText = 'font-size:10px;color:#556699;font-weight:700;letter-spacing:1px;margin:10px 0 6px';
-      lbl.textContent = match.round + '-TUR';
-      list.appendChild(lbl);
-    }
-    var home = TEAMS[match.home];
-    var away = TEAMS[match.away];
-    var isMyMatch = (match.home === myIndex || match.away === myIndex);
-    var row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;border-radius:10px;padding:8px 12px;margin-bottom:6px;font-size:12px;font-weight:700;' +
-      (isMyMatch ? 'background:#1a1060;border:1px solid #6c63ff55;' : 'background:#0d1225;');
-    var homeName = '<span' + (match.home === myIndex ? ' style="color:#00d4ff"' : '') + '>' + home.name + '</span>';
-    var awayName = '<span' + (match.away === myIndex ? ' style="color:#00d4ff"' : '') + '>' + away.name + '</span>';
-    row.innerHTML =
-      '<div style="display:flex;align-items:center;gap:6px;flex:1"><img src="' + home.logo + '" style="width:18px;height:18px;object-fit:contain">' + homeName + '</div>' +
-      '<span style="color:#334466;font-size:10px;padding:0 8px">vs</span>' +
-      '<div style="display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end">' + awayName + '<img src="' + away.logo + '" style="width:18px;height:18px;object-fit:contain"></div>';
-    list.appendChild(row);
-  });
-}
-
-document.getElementById('draw-close-btn').addEventListener('click', function() {
-  document.getElementById('draw-overlay').classList.add('hidden');
-  renderMatches();
-  renderProfile();
-});
-
-// ---- SCORE MODAL ----
-document.getElementById('score-close').addEventListener('click', function() {
-  document.getElementById('score-overlay').classList.add('hidden');
-  state.activeMatchId = null;
-});
-
-var inputMy = document.getElementById('input-my');
-var inputOpp = document.getElementById('input-opp');
-
-function checkScoreReady() {
-  var a = inputMy.value.trim();
-  var b = inputOpp.value.trim();
-  var btn = document.getElementById('submit-score-btn');
-  if (a !== '' && b !== '' && !isNaN(parseInt(a)) && !isNaN(parseInt(b))) {
-    btn.classList.add('ready');
-    btn.textContent = 'Natijani yuborish';
-  } else {
-    btn.classList.remove('ready');
-    btn.textContent = 'Gollarni kiriting';
-  }
-}
-inputMy.addEventListener('input', checkScoreReady);
-inputOpp.addEventListener('input', checkScoreReady);
-
-document.getElementById('submit-score-btn').addEventListener('click', function() {
-  if (!document.getElementById('submit-score-btn').classList.contains('ready')) return;
-  var matchId = state.activeMatchId;
-  var match = state.matches.find(function(m) { return m.id === matchId; });
-  if (!match) return;
-
-  match.myScore = parseInt(inputMy.value);
-  match.oppScore = parseInt(inputOpp.value);
-  match.status = 'pending_confirm';
-
-  document.getElementById('score-overlay').classList.add('hidden');
-  state.activeMatchId = null;
-  inputMy.value = '';
-  inputOpp.value = '';
-  document.getElementById('submit-score-btn').classList.remove('ready');
-  saveState();
-  renderMatches();
-  renderProfile();
-});
-
-// ---- RENDER MATCHES (in profile) ----
-function renderMatches() {
-  var container = document.getElementById('matches-list');
-  container.innerHTML = '';
-
-  if (!state.joined) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">⚽</div>Hali turnirga qo\'shilmadingiz</div>';
-    return;
-  }
-
-  if (!state.drawDone || state.matches.length === 0) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Qura hali tashlanmagan.<br>20 ishtirokchi to\'lganda jadval tayyor bo\'ladi.</div>';
-    return;
-  }
-
-  state.matches.forEach(function(match) {
-    var card = document.createElement('div');
-    card.className = 'match-card';
-
-    var myTeam = state.joinedTeam;
-    var myLogo = myTeam ? myTeam.logo : '';
-    var myName = myTeam ? myTeam.name : '';
-
-    // Teams row
-    var teamsRow = '<div class="match-teams">' +
-      '<div class="team-side">' +
-        '<img class="team-logo" src="' + myLogo + '" alt="' + myName + '">' +
-        '<span class="team-name">' + myName + '</span>' +
-      '</div>' +
-      '<div class="score-area">';
-
-    if (match.myScore !== null && match.oppScore !== null) {
-      var cls = match.status === 'confirmed' ? ' confirmed' : '';
-      teamsRow += '<span class="score-num' + cls + '">' + match.myScore + '</span>' +
-        '<span class="score-sep">:</span>' +
-        '<span class="score-num' + cls + '">' + match.oppScore + '</span>';
-    } else {
-      teamsRow += '<span style="color:#334466;font-size:13px;font-weight:700">vs</span>';
-    }
-
-    teamsRow += '</div>' +
-      '<div class="team-side">' +
-        '<img class="team-logo" src="' + match.oppLogo + '" alt="' + match.opponent + '">' +
-        '<span class="team-name">' + match.opponent + '</span>' +
-      '</div>' +
-    '</div>';
-
-    // Action row
-    var actionRow = '';
-    if (match.status === 'pending_score') {
-      actionRow = '<button class="action-btn" data-matchid="' + match.id + '">Natija kiritish</button>';
-    } else if (match.status === 'pending_confirm') {
-      actionRow = '<div class="pending-row">' +
-        '<div class="pending-label">⏳ Tasdiqlash kutilmoqda</div>' +
-        '<button class="confirm-btn" data-matchid="' + match.id + '">✓ Tasdiqlash</button>' +
-      '</div>';
-    } else if (match.status === 'confirmed') {
-      actionRow = '<div class="confirmed-label">✅ Tasdiqlandi</div>';
-    }
-
-    var roundLabel = '<div style="font-size:10px;color:#556699;margin-bottom:8px;font-weight:700">' + match.round + '-TUR</div>';
-    card.innerHTML = roundLabel + teamsRow + actionRow;
-    container.appendChild(card);
-  });
-
-  // Action button handlers
-  container.querySelectorAll('.action-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var id = parseInt(btn.getAttribute('data-matchid'));
-      var match = state.matches.find(function(m) { return m.id === id; });
-      if (!match) return;
-      state.activeMatchId = id;
-      var myTeam = state.joinedTeam;
-      document.getElementById('score-my-logo').src = myTeam ? myTeam.logo : '';
-      document.getElementById('score-my-name').textContent = myTeam ? myTeam.name : '';
-      document.getElementById('score-opp-logo').src = match.oppLogo;
-      document.getElementById('score-opp-name').textContent = match.opponent;
-      inputMy.value = '';
-      inputOpp.value = '';
-      document.getElementById('submit-score-btn').classList.remove('ready');
-      document.getElementById('submit-score-btn').textContent = 'Gollarni kiriting';
-      document.getElementById('score-overlay').classList.remove('hidden');
-    });
-  });
-
-  container.querySelectorAll('.confirm-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var id = parseInt(btn.getAttribute('data-matchid'));
-      var match = state.matches.find(function(m) { return m.id === id; });
-      if (!match) return;
-      match.status = 'confirmed';
-      saveState();
-      renderMatches();
-      updateStats();
-    });
-  });
-}
-
-// ---- UPDATE STATS ----
-function updateStats() {
-  var wins = 0, draws = 0, losses = 0;
-  state.matches.forEach(function(match) {
-    if (match.status === 'confirmed' && match.myScore !== null && match.oppScore !== null) {
-      if (match.myScore > match.oppScore) wins++;
-      else if (match.myScore === match.oppScore) draws++;
-      else losses++;
-    }
-  });
-  var wEl = document.getElementById('stat-wins');
-  var dEl = document.getElementById('stat-draws');
-  var lEl = document.getElementById('stat-lossees');
-  wEl.textContent = wins;
-  dEl.textContent = draws;
-  lEl.textContent = losses;
-  wEl.className = 'stat-val' + (wins > 0 ? ' active-stat' : '');
-  dEl.className = 'stat-val' + (draws > 0 ? ' active-stat' : '');
-  lEl.className = 'stat-val' + (losses > 0 ? ' active-stat' : '');
-  document.getElementById('stat-rank').textContent = state.joined ? '1' : '—';
-}
-
-// ---- RENDER PROFILE ----
-function renderProfile() {
-  if (state.joined && state.joinedTeam) {
-    document.getElementById('profile-avatar').innerHTML = '<img class="profile-logo" src="' + state.joinedTeam.logo + '" alt="' + state.joinedTeam.name + '">';
-    document.getElementById('profile-name').textContent = getUserName();
-    document.getElementById('profile-name').className = 'profile-name joined';
-    document.getElementById('profile-user').textContent = getUserUsername();
-  }
-  updateStats();
-  renderMatches();
-}
-
-// ---- STANDINGS ----
-function getPlayerStats(playerIndex) {
-  // If draw not done, return zeroes
-  if (!state.drawDone) return { b: 0, g: 0, d: 0, m: 0, gf: 0, ga: 0 };
+    if (!state.drawDone) return { b: 0, g: 0, d: 0, m: 0, gf: 0, ga: 0 };
 
   var p = state.players[playerIndex];
   if (!p) return { b: 0, g: 0, d: 0, m: 0, gf: 0, ga: 0 };
@@ -913,7 +811,7 @@ function renderStandings() {
       '<span style="color:#556699;font-size:11px;font-weight:700;text-align:center">' + (i+1) + '</span>' +
       '<div style="display:flex;align-items:center;gap:6px;overflow:hidden">' +
         '<img src="' + t.logo + '" style="width:18px;height:18px;object-fit:contain;flex-shrink:0">' +
-        '<span style="font-size:12px;font-weight:700;' + nameColor + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + row.p.name + '</span>' +
+        '<span style="font-size:12px;font-weight:700;' + nameColor + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + t.name + '</span>' +
       '</div>' +
       '<span style="font-size:11px;font-weight:700;text-align:center;color:#fff">' + s.b + '</span>' +
       '<span style="font-size:11px;text-align:center;color:#00c97a">' + s.g + '</span>' +
