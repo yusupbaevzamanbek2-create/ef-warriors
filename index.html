@@ -323,6 +323,65 @@ var state = {
   players: []  // {name, team} list of all joined players
 };
 
+// ---- SAQLASH / YUKLASH ----
+function saveState() {
+  try {
+    var toSave = {
+      joined: state.joined,
+      joinedTeam: state.joinedTeam,
+      participants: state.participants,
+      drawDone: state.drawDone,
+      schedule: state.schedule,
+      matches: state.matches,
+      players: state.players
+    };
+    localStorage.setItem('aplbot_state', JSON.stringify(toSave));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    var saved = localStorage.getItem('aplbot_state');
+    if (!saved) return;
+    var parsed = JSON.parse(saved);
+    state.joined = parsed.joined || false;
+    state.joinedTeam = parsed.joinedTeam || null;
+    state.participants = parsed.participants || 0;
+    state.drawDone = parsed.drawDone || false;
+    state.schedule = parsed.schedule || [];
+    state.matches = parsed.matches || [];
+    state.players = parsed.players || [];
+  } catch(e) {}
+}
+
+// Sahifa ochilganda yuklash
+loadState();
+
+// Yuklangan state asosida UI ni tiklash
+(function restoreUI() {
+  // Ishtirokchilar sonini tiklash
+  document.getElementById('participants').textContent = state.participants;
+  document.getElementById('progress-fill').style.width = (state.participants / MAX_PLAYERS * 100) + '%';
+
+  // Agar qo'shilgan bo'lsa
+  if (state.joined && state.joinedTeam) {
+    var team = state.joinedTeam;
+    var joinArea = document.getElementById('join-area');
+    joinArea.innerHTML = '<div class="joined-btn">✅ ' + team.name + ' — Qo\'shildingiz</div>';
+    document.getElementById('profile-avatar').innerHTML = '<img class="profile-logo" src="' + team.logo + '" alt="' + team.name + '">';
+    document.getElementById('profile-name').textContent = getUserName();
+    document.getElementById('profile-name').className = 'profile-name joined';
+    document.getElementById('profile-user').textContent = getUserUsername();
+  }
+
+  // Agar qura tashlanган bo'lsa
+  if (state.drawDone && state.schedule.length > 0) {
+    renderScheduleCard(state.schedule);
+    renderMatches();
+    updateStats();
+  }
+})();
+
 // ---- TELEGRAM USER ----
 var tgUser = null;
 try {
@@ -432,6 +491,7 @@ document.getElementById('join-confirm-btn').addEventListener('click', function()
   document.getElementById('profile-user').textContent = getUserUsername();
 
   document.getElementById('join-overlay').classList.add('hidden');
+  saveState();
 
   // If 20 players, trigger draw
   if (state.participants >= MAX_PLAYERS) {
@@ -475,6 +535,7 @@ function triggerDraw() {
 
     renderDrawResult(schedule);
     renderScheduleCard(schedule);
+    saveState();
   }, 2000);
 }
 
@@ -615,6 +676,7 @@ document.getElementById('submit-score-btn').addEventListener('click', function()
   inputMy.value = '';
   inputOpp.value = '';
   document.getElementById('submit-score-btn').classList.remove('ready');
+  saveState();
   renderMatches();
   renderProfile();
 });
@@ -710,6 +772,7 @@ function renderMatches() {
       var match = state.matches.find(function(m) { return m.id === id; });
       if (!match) return;
       match.status = 'confirmed';
+      saveState();
       renderMatches();
       updateStats();
     });
