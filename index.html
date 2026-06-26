@@ -45,11 +45,11 @@
   .action-btn { background: linear-gradient(90deg, #6c63ff, #00d4ff); border-radius: 10px; padding: 9px 0; text-align: center; font-weight: 700; font-size: 13px; color: #fff; cursor: pointer; width: 100%; border: none; display: block; }
   .pending-row { display: flex; gap: 8px; }
   .pending-label { flex: 1; background: #1a2040; border-radius: 10px; padding: 9px 0; text-align: center; font-size: 12px; color: #f5a623; font-weight: 700; }
-  .confirm-btn { background: #00c97a22; border: 1px solid #00c97a; border-radius: 10px; padding: 9px 14px; text-align: center; font-size: 12px; color: #00c97a; font-weight: 700; cursor: pointer; white-space: nowrap; }
-  .confirmed-label { background: #002a18; border-radius: 10px; padding: 9px 0; text-align: center; font-size: 12px; color: #00c97a; font-weight: 700; }
+  .confirm-btn { background: #00c97a22; border: 1px solid #00c97a; border-radius: 10px; padding: 9px 14px; text-align: center; font-size: 12px; color: #00c97a; font-weight: 700; cursor: pointer; white-space: nowrap; border: none; }
+  .confirmed-label { background: #002a18; border-radius: 10px; padding: 9px 0; text-align: center; font-size: 12px; color: #00c97a; font-weight: 700; width: 100%; }
   .profile-card { background: linear-gradient(135deg, #0f1535, #1a2060); border: 1px solid #2a3a80; border-radius: 18px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; }
   .profile-avatar { width: 60px; height: 60px; background: #1a2040; border: 2px dashed #2a3a70; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #334466; flex-shrink: 0; }
-  .profile-logo { width: 56px; height: 56px; object-fit: contain; flex-shrink: 0; }
+  .profile-logo { width: 56px; height: 56px; object-fit: contain; flex-shrink: 0; border-radius: 50%; }
   .profile-name { font-weight: 800; font-size: 16px; color: #334466; }
   .profile-name.joined { color: #fff; }
   .profile-user { color: #556699; font-size: 13px; }
@@ -148,7 +148,7 @@
       <div class="profile-avatar" id="profile-avatar">👤</div>
       <div>
         <div class="profile-name" id="profile-name">— —</div>
-        <div class="profile-user">@username</div>
+        <div class="profile-user" id="profile-user">@username</div>
       </div>
     </div>
     <div class="stats-grid">
@@ -303,10 +303,37 @@ document.querySelector('.bottom-nav').addEventListener('click', function(e) {
   var dot = document.createElement('div');
   dot.className = 'nav-dot';
   item.appendChild(dot);
+
+  if (tab === 'profil') renderMatches();
 });
+
+// ---- BUILD TEAM GRID ----
+function buildTeamGrid() {
+  var grid = document.getElementById('team-grid');
+  grid.innerHTML = '';
+  TEAMS.forEach(function(team, i) {
+    var item = document.createElement('div');
+    item.className = 'team-item';
+    item.setAttribute('data-index', i);
+    item.innerHTML = '<img src="' + team.logo + '" alt="' + team.name + '"><span>' + team.name + '</span>';
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.team-item').forEach(function(t) {
+        t.classList.remove('selected');
+      });
+      item.classList.add('selected');
+      state.selectedTeamIndex = i;
+      var confirmBtn = document.getElementById('join-confirm-btn');
+      confirmBtn.textContent = team.name + ' bilan qo\'shilish';
+      confirmBtn.style.opacity = '1';
+      confirmBtn.style.pointerEvents = 'auto';
+    });
+    grid.appendChild(item);
+  });
+}
 
 // ---- JOIN BTN ----
 document.getElementById('join-btn').addEventListener('click', function() {
+  buildTeamGrid();
   document.getElementById('join-overlay').classList.remove('hidden');
 });
 
@@ -319,8 +346,182 @@ document.getElementById('join-close').addEventListener('click', closeJoinModal);
 function closeJoinModal() {
   document.getElementById('join-overlay').classList.add('hidden');
   state.selectedTeamIndex = -1;
-  document.querySelectorAll('.team-item').forEach(function(t) {
-    t.classList.remove('selected');
-    t.querySelector('span').style.color = '#778899';
+  var confirmBtn = document.getElementById('join-confirm-btn');
+  confirmBtn.textContent = 'Jamoa tanlang';
+  confirmBtn.style.opacity = '0.4';
+  confirmBtn.style.pointerEvents = 'none';
+}
+
+// ---- JOIN CONFIRM ----
+document.getElementById('join-confirm-btn').addEventListener('click', function() {
+  if (state.selectedTeamIndex === -1) return;
+  var team = TEAMS[state.selectedTeamIndex];
+  state.joined = true;
+  state.joinedTeam = team;
+  state.participants = Math.min(state.participants + 1, 20);
+
+  // Update participants count
+  document.getElementById('participants').textContent = state.participants;
+  document.getElementById('progress-fill').style.width = (state.participants / 20 * 100) + '%';
+
+  // Replace join button with joined label
+  var joinArea = document.getElementById('join-area');
+  joinArea.innerHTML = '<div class="joined-btn">✅ ' + team.name + ' jamoasida o\'ynayapsiz</div>';
+
+  // Update profile tab
+  var avatarEl = document.getElementById('profile-avatar');
+  avatarEl.innerHTML = '<img class="profile-logo" src="' + team.logo + '" alt="' + team.name + '">';
+  avatarEl.style.background = 'transparent';
+  avatarEl.style.border = 'none';
+
+  document.getElementById('profile-name').textContent = team.name;
+  document.getElementById('profile-name').classList.add('joined');
+  document.getElementById('stat-rank').textContent = state.participants;
+
+  closeJoinModal();
+  renderMatches();
+});
+
+// ---- RENDER MATCHES ----
+function renderMatches() {
+  var list = document.getElementById('matches-list');
+  if (!state.joined) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">⚽</div>Hali o\'yinlarga qo\'shilmadingiz</div>';
+    return;
+  }
+  list.innerHTML = '';
+  state.matches.forEach(function(match) {
+    var card = document.createElement('div');
+    card.className = 'match-card';
+
+    var myLogo = state.joinedTeam ? state.joinedTeam.logo : '';
+    var myName = state.joinedTeam ? state.joinedTeam.name : 'Sen';
+
+    var scoreHtml = '';
+    if (match.status === 'pending_score') {
+      scoreHtml = '<span class="score-num">?</span><span class="score-sep">:</span><span class="score-num">?</span>';
+    } else if (match.status === 'pending_confirm') {
+      scoreHtml = '<span class="score-num confirmed">' + match.myScore + '</span><span class="score-sep">:</span><span class="score-num confirmed">' + match.oppScore + '</span>';
+    } else {
+      scoreHtml = '<span class="score-num confirmed">' + match.myScore + '</span><span class="score-sep">:</span><span class="score-num confirmed">' + match.oppScore + '</span>';
+    }
+
+    card.innerHTML =
+      '<div class="match-teams">' +
+        '<div class="team-side">' +
+          '<img class="team-logo" src="' + myLogo + '" alt="' + myName + '">' +
+          '<div class="team-name">' + myName + '</div>' +
+        '</div>' +
+        '<div class="score-area">' + scoreHtml + '</div>' +
+        '<div class="team-side">' +
+          '<img class="team-logo" src="' + match.oppLogo + '" alt="' + match.opponent + '">' +
+          '<div class="team-name">' + match.opponent + '</div>' +
+        '</div>' +
+      '</div>';
+
+    // Action area
+    var actionDiv = document.createElement('div');
+    if (match.status === 'pending_score') {
+      var btn = document.createElement('button');
+      btn.className = 'action-btn';
+      btn.textContent = 'Natija kiritish';
+      btn.addEventListener('click', (function(m) {
+        return function() { openScoreModal(m); };
+      })(match));
+      actionDiv.appendChild(btn);
+    } else if (match.status === 'pending_confirm') {
+      actionDiv.className = 'pending-row';
+      actionDiv.innerHTML = '<div class="pending-label">⏳ Tasdiqlash kutilmoqda</div>';
+      var confirmBtn = document.createElement('button');
+      confirmBtn.className = 'confirm-btn';
+      confirmBtn.textContent = '✓ Tasdiqlash';
+      confirmBtn.addEventListener('click', (function(m) {
+        return function() {
+          m.status = 'confirmed';
+          updateStats();
+          renderMatches();
+        };
+      })(match));
+      actionDiv.appendChild(confirmBtn);
+    } else {
+      actionDiv.innerHTML = '<div class="confirmed-label">✅ Tasdiqlangan</div>';
+    }
+    card.appendChild(actionDiv);
+    list.appendChild(card);
   });
-  var btn = document.getElementById(
+}
+
+// ---- SCORE MODAL ----
+function openScoreModal(match) {
+  state.activeMatchId = match.id;
+  document.getElementById('score-my-logo').src = state.joinedTeam ? state.joinedTeam.logo : '';
+  document.getElementById('score-my-name').textContent = state.joinedTeam ? state.joinedTeam.name : 'Sen';
+  document.getElementById('score-opp-logo').src = match.oppLogo;
+  document.getElementById('score-opp-name').textContent = match.opponent;
+  document.getElementById('input-my').value = '';
+  document.getElementById('input-opp').value = '';
+  var submitBtn = document.getElementById('submit-score-btn');
+  submitBtn.classList.remove('ready');
+  document.getElementById('score-overlay').classList.remove('hidden');
+}
+
+document.getElementById('score-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeScoreModal();
+});
+document.getElementById('score-close').addEventListener('click', closeScoreModal);
+
+function closeScoreModal() {
+  document.getElementById('score-overlay').classList.add('hidden');
+  state.activeMatchId = null;
+}
+
+// Score inputs — enable submit when both filled
+function checkScoreInputs() {
+  var my = document.getElementById('input-my').value;
+  var opp = document.getElementById('input-opp').value;
+  var btn = document.getElementById('submit-score-btn');
+  if (my !== '' && opp !== '') {
+    btn.classList.add('ready');
+  } else {
+    btn.classList.remove('ready');
+  }
+}
+document.getElementById('input-my').addEventListener('input', checkScoreInputs);
+document.getElementById('input-opp').addEventListener('input', checkScoreInputs);
+
+document.getElementById('submit-score-btn').addEventListener('click', function() {
+  var my = document.getElementById('input-my').value;
+  var opp = document.getElementById('input-opp').value;
+  if (my === '' || opp === '') return;
+
+  var match = state.matches.find(function(m) { return m.id === state.activeMatchId; });
+  if (!match) return;
+
+  match.myScore = parseInt(my);
+  match.oppScore = parseInt(opp);
+  match.status = 'pending_confirm';
+
+  closeScoreModal();
+  renderMatches();
+});
+
+// ---- UPDATE STATS ----
+function updateStats() {
+  var wins = 0, draws = 0, losses = 0;
+  state.matches.forEach(function(m) {
+    if (m.status === 'confirmed') {
+      if (m.myScore > m.oppScore) wins++;
+      else if (m.myScore === m.oppScore) draws++;
+      else losses++;
+    }
+  });
+  document.getElementById('stat-wins').textContent = wins;
+  document.getElementById('stat-draws').textContent = draws;
+  document.getElementById('stat-losses').textContent = losses;
+}
+
+// ---- INIT: render empty matches ----
+renderMatches();
+</script>
+</body>
+</html>
