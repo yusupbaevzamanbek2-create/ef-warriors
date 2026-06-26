@@ -4,86 +4,87 @@ import os
 from flask import Flask, request
 
 TOKEN = "8950414020:AAGIA0C4-dhmn0r0mGmmFP_hSQM31RusNn4"
+CHANNEL = "@eFWarriors"
+
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
 users_lang = {}
 
-texts = {
-    "uz": {
-        "tournaments": "Turnirlar",
-        "results": "Natijalar",
-        "profile": "Profil",
-        "admin": "Admin",
-        "register": "Turnirga yozilish",
-        "registered": "Siz turnirga qoshildingiz!",
-        "no_results": "Hozircha natijalar yoq."
-    },
-    "ru": {
-        "tournaments": "Turniry",
-        "results": "Rezultaty",
-        "profile": "Profil",
-        "admin": "Admin",
-        "register": "Registratsiya",
-        "registered": "Vy zaregistrirovany!",
-        "no_results": "Rezultatov poka net."
-    },
-    "en": {
-        "tournaments": "Tournaments",
-        "results": "Results",
-        "profile": "Profile",
-        "admin": "Admin",
-        "register": "Register",
-        "registered": "Registered successfully!",
-        "no_results": "No results yet."
-    }
-}
+def check_subscription(user_id):
+    try:
+        member = bot.get_chat_member(CHANNEL, user_id)
+        return member.status in ["member", "administrator", "creator"]
+    except:
+        return False
 
-def menu(chat_id, lang):
-    kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    kb.add(types.KeyboardButton(texts[lang]["tournaments"]))
-    kb.add(types.KeyboardButton(texts[lang]["results"]))
-    kb.add(types.KeyboardButton(texts[lang]["profile"]))
-    kb.add(types.KeyboardButton(texts[lang]["register"]))
-    kb.add(types.KeyboardButton(texts[lang]["admin"]))
+def send_webapp(chat_id, lang):
+    messages = {
+        "uz": "Xush kelibsiz! eF Warriors ga kiring:",
+        "ru": "Dobro pozhalovat! Voydite v eF Warriors:",
+        "en": "Welcome! Enter eF Warriors:"
+    }
     inline = types.InlineKeyboardMarkup()
     inline.add(types.InlineKeyboardButton(
-        "eF Warriors App",
+        "🏆 eF Warriors App",
         web_app=types.WebAppInfo(
             url="https://yusupbaevzamanbek2-create.github.io/ef-warriors/"
         )
     ))
-    bot.send_message(chat_id, "eF Warriors", reply_markup=kb)
-    bot.send_message(chat_id, "Web App:", reply_markup=inline)
+    bot.send_message(chat_id, messages[lang], reply_markup=inline)
+
+def send_subscribe(chat_id, lang):
+    messages = {
+        "uz": "Botdan foydalanish uchun kanalga obuna boning:",
+        "ru": "Podpishites na kanal chtoby polzovatsya botom:",
+        "en": "Subscribe to our channel to use the bot:"
+    }
+    inline = types.InlineKeyboardMarkup()
+    inline.add(types.InlineKeyboardButton(
+        "📢 Kanalga obuna bolish",
+        url="https://t.me/eFWarriors"
+    ))
+    inline.add(types.InlineKeyboardButton(
+        "✅ Tekshirish",
+        callback_data="check_sub"
+    ))
+    bot.send_message(chat_id, messages[lang], reply_markup=inline)
 
 @bot.message_handler(commands=["start"])
 def start(message):
     kb = types.InlineKeyboardMarkup()
     kb.add(
-        types.InlineKeyboardButton("Ozbekcha", callback_data="uz"),
-        types.InlineKeyboardButton("Russkiy", callback_data="ru"),
-        types.InlineKeyboardButton("English", callback_data="en")
+        types.InlineKeyboardButton("🇺🇿 Ozbekcha", callback_data="uz"),
+        types.InlineKeyboardButton("🇷🇺 Russkiy", callback_data="ru"),
+        types.InlineKeyboardButton("🇬🇧 English", callback_data="en")
     )
-    bot.send_message(message.chat.id, "Tilni tanlang", reply_markup=kb)
+    bot.send_message(
+        message.chat.id,
+        "Salom! Tilni tanlang / Privet! Vyberi yazyk / Hello! Choose language:",
+        reply_markup=kb
+    )
 
-@bot.callback_query_handler(func=lambda call: True)
+@bot.callback_query_handler(func=lambda call: call.data in ["uz", "ru", "en"])
 def language(call):
     users_lang[call.from_user.id] = call.data
-    menu(call.message.chat.id, call.data)
+    if check_subscription(call.from_user.id):
+        send_webapp(call.message.chat.id, call.data)
+    else:
+        send_subscribe(call.message.chat.id, call.data)
 
-@bot.message_handler(func=lambda m: True)
-def handler(message):
-    lang = users_lang.get(message.from_user.id, "uz")
-    if message.text == texts[lang]["register"]:
-        bot.send_message(message.chat.id, texts[lang]["registered"])
-    elif message.text == texts[lang]["tournaments"]:
-        bot.send_message(message.chat.id, "World Cup 2026\n\n0/32")
-    elif message.text == texts[lang]["results"]:
-        bot.send_message(message.chat.id, texts[lang]["no_results"])
-    elif message.text == texts[lang]["profile"]:
-        bot.send_message(message.chat.id, f"{message.from_user.first_name}\nID: {message.from_user.id}")
-    elif message.text == texts[lang]["admin"]:
-        bot.send_message(message.chat.id, "@yusupbaevv")
+@bot.callback_query_handler(func=lambda call: call.data == "check_sub")
+def check_sub(call):
+    lang = users_lang.get(call.from_user.id, "uz")
+    if check_subscription(call.from_user.id):
+        bot.answer_callback_query(call.id, "Rahmat!")
+        send_webapp(call.message.chat.id, lang)
+    else:
+        messages = {
+            "uz": "Hali obuna bolmadingiz!",
+            "ru": "Vy eshyo ne podpisalis!",
+            "en": "You are not subscribed yet!"
+        }
+        bot.answer_callback_query(call.id, messages[lang])
 
 @app.route("/" + TOKEN, methods=["POST"])
 def webhook():
