@@ -284,7 +284,7 @@
         <div class="profile-user" id="profile-user">@username</div>
       </div>
     </div>
-    <div class="stats-grid">
+    <div class="stats-grd">
       <div class="stat-box"><div class="stat-val" id="stat-rank">—</div><div class="stat-label">O'rin</div></div>
       <div class="stat-box"><div class="stat-val" id="stat-wins">0</div><div class="stat-label">G'alaba</div></div>
       <div class="stat-box"><div class="stat-val" id="stat-draws">0</div><div class="stat-label">Durang</div></div>
@@ -456,10 +456,7 @@ var state = {
 
 // ---- JSONBIN CONFIG ----
 var JSONBIN_SECRET = '$2a$10$iuenatd1i8qDLQBJh17cBenJYq4qjFaeWz0E.3mAkvCUf8fw1HYLG';
-var JSONBIN_BIN_ID = null; // birinchi saqlashda yaratiladi
-
-// LocalStorage dan bin ID ni olish
-try { JSONBIN_BIN_ID = localStorage.getItem('aplbot_bin_id') || null; } catch(e) {}
+var JSONBIN_BIN_ID = '6a3ed42ada38895dfe0459aa';
 
 function showLoader(msg) {
   var el = document.getElementById('loader-msg');
@@ -482,27 +479,13 @@ function saveSharedState(callback) {
     allMatches: state.allMatches || {}
   };
 
-  if (JSONBIN_BIN_ID) {
-    // Mavjud bin ni yangilash
-    fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_SECRET },
-      body: JSON.stringify(sharedData)
-    }).then(function(r) { return r.json(); }).then(function() {
-      if (callback) callback();
-    }).catch(function() { if (callback) callback(); });
-  } else {
-    // Yangi bin yaratish
-    fetch('https://api.jsonbin.io/v3/b', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_SECRET, 'X-Bin-Name': 'aplbot' },
-      body: JSON.stringify(sharedData)
-    }).then(function(r) { return r.json(); }).then(function(data) {
-      JSONBIN_BIN_ID = data.metadata.id;
-      try { localStorage.setItem('aplbot_bin_id', JSONBIN_BIN_ID); } catch(e) {}
-      if (callback) callback();
-    }).catch(function() { if (callback) callback(); });
-  }
+  fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_SECRET },
+    body: JSON.stringify(sharedData)
+  }).then(function(r) { return r.json(); }).then(function() {
+    if (callback) callback();
+  }).catch(function() { if (callback) callback(); });
 }
 
 // ---- UMUMIY MA'LUMOTLARNI YUKLASH ----
@@ -793,7 +776,7 @@ function renderDrawResult(schedule) {
 
   var currentRound = 0;
   schedule.forEach(function(match) {
-    if (match.round !== currentRound) {
+    if (match.round !== currentRouund) {
       currentRound = match.round;
       var lbl = document.createElement('div');
       lbl.className = 'draw-round-label';
