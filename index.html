@@ -301,7 +301,7 @@ var TEAMS = [
   { name: "Liverpool", logo: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" },
   { name: "Man City", logo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg" },
   { name: "Man United", logo: "https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg" },
-   { name: "Newcastle", logo: "https://upload.wikimedia.org/wikipedia/en/5/56/Newcastle_United_Logo.svg" },
+  { name: "Newcastle", logo: "https://upload.wikimedia.org/wikipedia/en/5/56/Newcastle_United_Logo.svg" },
   { name: "Nottm Forest", logo: "https://upload.wikimedia.org/wikipedia/en/e/e5/Nottingham_Forest_F.C._logo.svg" },
   { name: "Southampton", logo: "https://upload.wikimedia.org/wikipedia/en/c/c9/FC_Southampton.svg" },
   { name: "Tottenham", logo: "https://upload.wikimedia.org/wikipedia/en/b/b4/Tottenham_Hotspur.svg" },
@@ -492,6 +492,7 @@ document.getElementById('join-confirm-btn').addEventListener('click', function()
 
   document.getElementById('join-overlay').classList.add('hidden');
   renderScheduleCard([]);
+  renderStandings();
   saveState();
 
   // If 20 players, trigger draw
@@ -728,7 +729,7 @@ function renderMatches() {
 
     var myTeam = state.joinedTeam;
     var myLogo = myTeam ? myTeam.logo : '';
-    var myName = myTeam ? myTeam.name : 'Siz';
+    var myName = myTeam ? myTeam.name : '';
 
     // Teams row
     var teamsRow = '<div class="match-teams">' +
@@ -781,7 +782,7 @@ function renderMatches() {
       state.activeMatchId = id;
       var myTeam = state.joinedTeam;
       document.getElementById('score-my-logo').src = myTeam ? myTeam.logo : '';
-      document.getElementById('score-my-name').textContent = myTeam ? myTeam.name : 'Siz';
+      document.getElementById('score-my-name').textContent = myTeam ? myTeam.name : '';
       document.getElementById('score-opp-logo').src = match.oppLogo;
       document.getElementById('score-opp-name').textContent = match.opponent;
       inputMy.value = '';
@@ -805,6 +806,28 @@ function renderMatches() {
   });
 }
 
+// ---- UPDATE STATS ----
+function updateStats() {
+  var wins = 0, draws = 0, losses = 0;
+  state.matches.forEach(function(match) {
+    if (match.status === 'confirmed' && match.myScore !== null && match.oppScore !== null) {
+      if (match.myScore > match.oppScore) wins++;
+      else if (match.myScore === match.oppScore) draws++;
+      else losses++;
+    }
+  });
+  var wEl = document.getElementById('stat-wins');
+  var dEl = document.getElementById('stat-draws');
+  var lEl = document.getElementById('stat-lossees');
+  wEl.textContent = wins;
+  dEl.textContent = draws;
+  lEl.textContent = losses;
+  wEl.className = 'stat-val' + (wins > 0 ? ' active-stat' : '');
+  dEl.className = 'stat-val' + (draws > 0 ? ' active-stat' : '');
+  lEl.className = 'stat-val' + (losses > 0 ? ' active-stat' : '');
+  document.getElementById('stat-rank').textContent = state.joined ? '1' : '—';
+}
+
 // ---- RENDER PROFILE ----
 function renderProfile() {
   if (state.joined && state.joinedTeam) {
@@ -815,36 +838,98 @@ function renderProfile() {
   }
   updateStats();
   renderMatches();
-      }
-  });
-  var wEl = document.getElementById('stat-wins');
-  var dEl = document.getElementById('stat-draws');
-  var lEl = document.getElementById('stat-losses');
-  wEl.textContent = wins;
-  dEl.textContent = draws;
-  lEl.textContent = losses;
-  wEl.className = 'stat-val' + (wins > 0 ? ' active-stat' : '');
-  dEl.className = 'stat-val' + (draws > 0 ? ' active-stat' : '');
-  lEl.className = 'stat-val' + (losses > 0 ? ' active-stat' : '');
-  document.getElementById('stat-rank').textContent = state.joined ? '1' : '—';
 }
 
-// ---- STANDINGS (placeholder) ----
+// ---- STANDINGS ----
+function getPlayerStats(playerIndex) {
+  // If draw not done, return zeroes
+  if (!state.drawDone) return { b: 0, g: 0, d: 0, m: 0, gf: 0, ga: 0 };
+
+  var p = state.players[playerIndex];
+  if (!p) return { b: 0, g: 0, d: 0, m: 0, gf: 0, ga: 0 };
+  var teamIdx = p.teamIndex;
+
+  var b = 0, g = 0, d = 0, m = 0, gf = 0, ga = 0;
+
+  // Go through all confirmed matches involving this player's team
+  state.players.forEach(function(otherPlayer) {
+    if (otherPlayer.teamIndex === teamIdx) {
+      // find their matches
+      var playerMatches = [];
+      if (state.joined && state.joinedTeam && state.joinedTeam.index === teamIdx) {
+        playerMatches = state.matches;
+      }
+      playerMatches.forEach(function(match) {
+        if (match.status === 'confirmed' && match.myScore !== null && match.oppScore !== null) {
+          b++;
+          gf += match.myScore;
+          ga += match.oppScore;
+          if (match.myScore > match.oppScore) g++;
+          else if (match.myScore === match.oppScore) d++;
+          else m++;
+        }
+      });
+    }
+  });
+
+  return { b: b, g: g, d: d, m: m, gf: gf, ga: ga };
+}
+
 function renderStandings() {
   var el = document.getElementById('standings-list');
-  if (!state.drawDone || state.players.length === 0) {
+
+  if (state.players.length === 0) {
     el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>Hali ma\'lumot yo\'q</div>';
     return;
   }
-  el.innerHTML = state.players.map(function(p, i) {
+
+  // Build rows with stats
+  var rows = state.players.map(function(p, i) {
     var t = TEAMS[p.teamIndex];
-    return '<div style="display:flex;align-items:center;gap:8px;background:#0d1225;border-radius:10px;padding:10px 12px;margin-bottom:6px;">' +
-      '<span style="color:#556699;font-size:12px;font-weight:700;width:20px">' + (i+1) + '</span>' +
-      '<img src="' + t.logo + '" style="width:22px;height:22px;object-fit:contain">' +
-      '<span style="font-size:13px;font-weight:700;flex:1">' + p.name + '</span>' +
-      '<span style="font-size:11px;color:#556699">' + t.name + '</span>' +
+    var s = getPlayerStats(i);
+    var gd = s.gf - s.ga;
+    var pts = s.g * 3 + s.d;
+    var isMe = (state.joined && state.joinedTeam && state.joinedTeam.index === p.teamIndex);
+    return { p: p, t: t, s: s, gd: gd, pts: pts, isMe: isMe, origIndex: i };
+  });
+
+  // Sort by points desc, then GD desc, then GF desc
+  if (state.drawDone) {
+    rows.sort(function(a, b) {
+      if (b.pts !== a.pts) return b.pts - a.pts;
+      if (b.gd !== a.gd) return b.gd - a.gd;
+      return b.s.gf - a.s.gf;
+    });
+  }
+
+  el.innerHTML = rows.map(function(row, i) {
+    var t = row.t;
+    var s = row.s;
+    var gd = row.gd;
+    var gdStr = gd > 0 ? '+' + gd : '' + gd;
+    var highlight = row.isMe ? 'background:#1a1060;border:1px solid #6c63ff55;' : 'background:#0d1225;';
+    var nameColor = row.isMe ? 'color:#00d4ff;' : '';
+    return '<div style="display:grid;grid-template-columns:28px 1fr 38px 28px 28px 28px 28px 28px 38px;gap:2px;align-items:center;' + highlight + 'border-radius:10px;padding:9px 10px;margin-bottom:5px;">' +
+      '<span style="color:#556699;font-size:11px;font-weight:700;text-align:center">' + (i+1) + '</span>' +
+      '<div style="display:flex;align-items:center;gap:6px;overflow:hidden">' +
+        '<img src="' + t.logo + '" style="width:18px;height:18px;object-fit:contain;flex-shrink:0">' +
+        '<span style="font-size:12px;font-weight:700;' + nameColor + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + row.p.name + '</span>' +
+      '</div>' +
+      '<span style="font-size:11px;font-weight:700;text-align:center;color:#fff">' + s.b + '</span>' +
+      '<span style="font-size:11px;text-align:center;color:#00c97a">' + s.g + '</span>' +
+      '<span style="font-size:11px;text-align:center;color:#f5a623">' + s.d + '</span>' +
+      '<span style="font-size:11px;text-align:center;color:#e74c3c">' + s.m + '</span>' +
+      '<span style="font-size:11px;text-align:center;color:#aab">' + s.gf + '</span>' +
+      '<span style="font-size:11px;text-align:center;color:#aab">' + s.ga + '</span>' +
+      '<span style="font-size:11px;font-weight:700;text-align:center;color:' + (gd >= 0 ? '#00c97a' : '#e74c3c') + '">' + (state.drawDone ? gdStr : '—') + '</span>' +
     '</div>';
   }).join('');
+
+  // Show "waiting" notice if draw not done yet
+  if (!state.drawDone) {
+    el.innerHTML += '<div style="text-align:center;color:#556699;font-size:11px;padding:10px 0 4px">' +
+      '⏳ Qura ' + (20 - state.players.length) + ' ta o\'yinchi qolganda tashlanadi</div>';
+  }
 }
 
 // ---- INIT ----
