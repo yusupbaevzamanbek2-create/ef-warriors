@@ -1,10 +1,5 @@
 @bot.message_handler(commands=["start"])
 def start(message):
-    bot.send_message(
-        message.chat.id,
-        "Salom!",
-        reply_markup=types.ReplyKeyboardRemove()
-    )
     inline = types.InlineKeyboardMarkup()
     inline.add(
         types.InlineKeyboardButton("🇺🇿 O'zbekcha", callback_data="uz"),
@@ -13,6 +8,6 @@ def start(message):
     )
     bot.send_message(
         message.chat.id,
-        "Tilni tanlang / Выберите язык / Choose language:",
+        "Salom! 👋\n\nTilni tanlang / Выберите язык / Choose language:",
         reply_markup=inline
     )
