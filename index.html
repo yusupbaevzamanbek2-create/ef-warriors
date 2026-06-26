@@ -1,312 +1,350 @@
-import { useState } from "react";
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>APL BOT</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { background: #0a0d1a; color: #fff; font-family: 'Segoe UI', sans-serif; max-width: 430px; margin: 0 auto; min-height: 100vh; }
 
+  /* HEADER */
+  .header { padding: 18px 20px 12px; display: flex; align-items: center; gap: 10; border-bottom: 1px solid #1a2040; }
+  .logo-box { width: 36px; height: 36px; background: linear-gradient(135deg, #6c63ff, #00d4ff); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .logo-text { font-weight: 800; font-size: 18px; letter-spacing: 2px; background: linear-gradient(90deg, #00d4ff, #6c63ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .lang-badge { margin-left: auto; background: #1e2a5e; color: #00d4ff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; border: 1px solid #00d4ff44; }
+
+  /* CONTENT */
+  .content { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+
+  /* TABS */
+  .tab { display: none; padding: 16px 14px; }
+  .tab.active { display: block; }
+
+  /* CARD */
+  .card { background: #13172a; border: 1px solid #1e2545; border-radius: 16px; padding: 18px 16px 16px; margin-bottom: 14px; }
+  .card-title { font-weight: 800; font-size: 17px; }
+  .live-tag { background: #2a0a0a; color: #e74c3c; border: 1px solid #e74c3c55; border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 800; letter-spacing: 1px; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 14px; }
+  .info-label { font-size: 11px; color: #556699; margin-bottom: 2px; }
+  .info-val { font-size: 15px; font-weight: 700; }
+  .progress-bar { height: 4px; background: #1e2545; border-radius: 4px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #6c63ff, #00d4ff); border-radius: 4px; transition: width 0.3s; }
+  .join-btn { background: linear-gradient(90deg, #00c6ff, #7b5cff); border-radius: 12px; padding: 13px 0; text-align: center; font-weight: 700; font-size: 15px; color: #fff; cursor: pointer; border: none; width: 100%; }
+  .joined-btn { background: #002a18; border: 1px solid #00c97a55; border-radius: 12px; padding: 13px 0; text-align: center; font-weight: 700; font-size: 15px; color: #00c97a; }
+
+  /* BOTTOM NAV */
+  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: #0a0d1a; border-top: 1px solid #1a2040; display: flex; justify-content: space-around; padding: 12px 0 16px; z-index: 100; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; opacity: 0.4; }
+  .nav-item.active { opacity: 1; }
+  .nav-icon { font-size: 20px; }
+  .nav-label { font-size: 10px; font-weight: 700; color: #556699; letter-spacing: 0.5px; }
+  .nav-item.active .nav-label { color: #00d4ff; }
+  .nav-dot { width: 20px; height: 2px; background: linear-gradient(90deg, #6c63ff, #00d4ff); border-radius: 2px; }
+
+  /* SECTION TITLE */
+  .section-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #8899cc; margin-bottom: 16px; }
+
+  /* MATCHES */
+  .match-card { background: #0f1530; border: 1px solid #1e2a50; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+  .match-teams { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .team-side { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+  .team-logo { width: 32px; height: 32px; object-fit: contain; }
+  .team-name { font-weight: 700; font-size: 11px; color: #aab; text-align: center; }
+  .score-area { display: flex; align-items: center; gap: 6px; padding: 0 10px; }
+  .score-num { font-weight: 900; font-size: 24px; color: #fff; min-width: 22px; text-align: center; }
+  .score-num.confirmed { color: #00d4ff; }
+  .score-sep { color: #334466; font-size: 18px; font-weight: 700; }
+  .action-btn { background: linear-gradient(90deg, #6c63ff, #00d4ff); border-radius: 10px; padding: 9px 0; text-align: center; font-weight: 700; font-size: 13px; color: #fff; cursor: pointer; width: 100%; border: none; }
+  .pending-row { display: flex; gap: 8px; }
+  .pending-label { flex: 1; background: #1a2040; border-radius: 10px; padding: 9px 0; text-align: center; font-size: 12px; color: #f5a623; font-weight: 700; }
+  .confirm-btn { background: #00c97a22; border: 1px solid #00c97a; border-radius: 10px; padding: 9px 14px; text-align: center; font-size: 12px; color: #00c97a; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .confirmed-label { background: #002a18; border-radius: 10px; padding: 9px 0; text-align: center; font-size: 12px; color: #00c97a; font-weight: 700; }
+
+  /* PROFIL */
+  .profile-card { background: linear-gradient(135deg, #0f1535, #1a2060); border: 1px solid #2a3a80; border-radius: 18px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; }
+  .profile-avatar { width: 60px; height: 60px; background: #1a2040; border: 2px dashed #2a3a70; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #334466; }
+  .profile-logo { width: 56px; height: 56px; object-fit: contain; }
+  .profile-name { font-weight: 800; font-size: 16px; color: #334466; }
+  .profile-name.joined { color: #fff; }
+  .profile-user { color: #556699; font-size: 13px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+  .stat-box { background: #111830; border: 1px solid #1e2a50; border-radius: 12px; padding: 14px 8px; text-align: center; }
+  .stat-val { font-size: 20px; font-weight: 900; color: #334466; }
+  .stat-val.active { color: #00d4ff; }
+  .stat-label { font-size: 9px; color: #556699; margin-top: 4px; }
+
+  /* REYTING */
+  .table-header { display: grid; grid-template-columns: 28px 1fr 42px 32px 32px 32px 32px 32px 42px; gap: 4px; padding: 8px 12px; background: #0d1225; border-radius: 10px; margin-bottom: 8px; font-size: 11px; color: #556699; font-weight: 700; }
+  .empty-state { text-align: center; padding: 40px 20px; color: #334466; font-size: 13px; }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; }
+
+  /* SOVRINLAR */
+  .prize-card { background: linear-gradient(135deg, #0f1535, #141c40); border: 1px solid #1e2a50; border-radius: 16px; padding: 18px; margin-bottom: 14px; display: flex; gap: 16px; align-items: center; }
+  .prize-icon { font-size: 36px; }
+  .prize-title { font-weight: 800; font-size: 16px; margin-bottom: 4px; }
+  .prize-sub { color: #556699; font-size: 12px; margin-bottom: 8px; }
+  .prize-badge { color: #334466; font-size: 12px; background: #0d1225; border-radius: 8px; padding: 4px 10px; display: inline-block; }
+
+  /* MODAL */
+  .overlay { position: fixed; inset: 0; background: #000000cc; display: flex; align-items: flex-end; justify-content: center; z-index: 200; }
+  .overlay.hidden { display: none; }
+  .modal { background: #0f1530; border: 1px solid #1e2a50; border-radius: 20px 20px 0 0; padding: 20px 16px 32px; width: 100%; max-width: 430px; max-height: 80vh; overflow-y: auto; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .modal-title { font-weight: 800; font-size: 18px; }
+  .modal-close { font-size: 20px; cursor: pointer; color: #556699; padding: 0 4px; background: none; border: none; color: #556699; }
+  .modal-sub { font-size: 12px; color: #556699; margin-bottom: 16px; }
+
+  /* TEAM GRID */
+  .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+  .team-item { background: #0d1225; border: 1px solid #1e2545; border-radius: 12px; padding: 10px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+  .team-item.selected { background: #1a1060; border: 2px solid #6c63ff; }
+  .team-item img { width: 32px; height: 32px; object-fit: contain; }
+  .team-item span { font-size: 9px; color: #778899; font-weight: 700; text-align: center; line-height: 1.2; }
+  .team-item.selected span { color: #00d4ff; }
+
+  /* SCORE INPUT */
+  .score-vs { display: flex; align-items: center; justify-content: space-around; margin-bottom: 24px; }
+  .score-team { text-align: center; }
+  .score-team img { width: 48px; height: 48px; object-fit: contain; margin-bottom: 6px; display: block; }
+  .score-team-name { font-size: 12px; font-weight: 700; color: #aab; }
+  .vs-text { font-size: 20px; color: #334466; font-weight: 700; }
+  .score-inputs { display: flex; gap: 12px; margin-bottom: 20px; }
+  .score-input-wrap { flex: 1; }
+  .score-input-label { font-size: 11px; color: #556699; margin-bottom: 6px; }
+  .score-input { width: 100%; background: #0d1225; border: 1px solid #1e2545; border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 20px; font-weight: 700; text-align: center; outline: none; -moz-appearance: textfield; }
+  .score-input::-webkit-outer-spin-button, .score-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .submit-btn { border-radius: 12px; padding: 14px 0; text-align: center; font-weight: 700; font-size: 15px; color: #fff; cursor: pointer; width: 100%; border: none; background: #1a2040; color: #334466; }
+  .submit-btn.ready { background: linear-gradient(90deg, #00c6ff, #7b5cff); color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo-box">⚽</div>
+  <span class="logo-text">APL BOT</span>
+  <span class="lang-badge">UZ</span>
+</div>
+
+<!-- TABS CONTENT -->
+<div class="content">
+
+  <!-- ASOSIY -->
+  <div class="tab active" id="tab-asosiy">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div class="card-title">APL — Asosiy Liga</div>
+        <div class="live-tag">JONLI</div>
+      </div>
+      <div class="info-grid">
+        <div>
+          <div class="info-label">Ishtirokchilar</div>
+          <div class="info-val"><span id="participants">0</span> / 20</div>
+        </div>
+        <div>
+          <div class="info-label">Format</div>
+          <div class="info-val">Liga</div>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div id="join-area">
+        <button class="join-btn" onclick="openJoinModal()">+ Qo'shilish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REYTING -->
+  <div class="tab" id="tab-reyting">
+    <div style="padding:4px 2px">
+      <div class="section-title">REYTING JADVALI</div>
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <div style="background:linear-gradient(135deg,#6c63ff,#00d4ff);border-radius:20px;padding:7px 18px;font-size:13px;font-weight:700">APL</div>
+      </div>
+      <div class="table-header">
+        <div>#</div><div>O'yinchi</div><div style="text-align:center">B</div>
+        <div style="text-align:center">G</div><div style="text-align:center">D</div><div style="text-align:center">M</div>
+        <div style="text-align:center">GF</div><div style="text-align:center">GA</div><div style="text-align:center">GD</div>
+      </div>
+      <div class="empty-state"><div class="empty-icon">📋</div>Hali ma'lumot yo'q</div>
+    </div>
+  </div>
+
+  <!-- PROFIL -->
+  <div class="tab" id="tab-profil">
+    <div class="profile-card">
+      <div id="profile-avatar" class="profile-avatar">👤</div>
+      <div>
+        <div class="profile-name" id="profile-name">— —</div>
+        <div class="profile-user">@username</div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-val" id="stat-rank">—</div><div class="stat-label">O'rin</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-wins">0</div><div class="stat-label">G'alaba</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-draws">0</div><div class="stat-label">Durang</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-losses">0</div><div class="stat-label">Mag'lubiyat</div></div>
+    </div>
+    <div class="section-title">MENING O'YINLARIM</div>
+    <div id="matches-list"></div>
+  </div>
+
+  <!-- SOVRINLAR -->
+  <div class="tab" id="tab-sovrinlar">
+    <div style="padding:4px 2px">
+      <div class="section-title">SOVRINLAR</div>
+      <div class="prize-card">
+        <div class="prize-icon">👟</div>
+        <div><div class="prize-title">Oltin Butsa</div><div class="prize-sub">Eng ko'p gol urgan o'yinchi</div><div class="prize-badge">Aniqlanmagan</div></div>
+      </div>
+      <div class="prize-card">
+        <div class="prize-icon">🏆</div>
+        <div><div class="prize-title">Oltin To'p</div><div class="prize-sub">Turnir g'olibi</div><div class="prize-badge">Aniqlanmagan</div></div>
+      </div>
+      <div class="prize-card">
+        <div class="prize-icon">🥇</div>
+        <div><div class="prize-title">Liga Kubogi</div><div class="prize-sub">Liga chempioni</div><div class="prize-badge">Aniqlanmagan</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="switchTab('asosiy',this)">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Asosiy</span>
+    <div class="nav-dot"></div>
+  </div>
+  <div class="nav-item" onclick="switchTab('reyting',this)">
+    <span class="nav-icon">🏆</span>
+    <span class="nav-label">Reyting</span>
+  </div>
+  <div class="nav-item" onclick="switchTab('profil',this)">
+    <span class="nav-icon">👤</span>
+    <span class="nav-label">Profil</span>
+  </div>
+  <div class="nav-item" onclick="switchTab('sovrinlar',this)">
+    <span class="nav-icon">🎁</span>
+    <span class="nav-label">Sovrinlar</span>
+  </div>
+</div>
+
+<!-- JOIN MODAL -->
+<div class="overlay hidden" id="join-overlay" onclick="overlayClick(event,'join-overlay')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Jamoa tanlang</div>
+      <button class="modal-close" onclick="closeModal('join-overlay')">✕</button>
+    </div>
+    <div class="modal-sub">Premier League 2025/26 jamoalaridan birini tanlang</div>
+    <div class="team-grid" id="team-grid"></div>
+    <button class="join-btn" id="join-confirm-btn" onclick="confirmJoin()" style="opacity:0.4;pointer-events:none">Jamoa tanlang</button>
+  </div>
+</div>
+
+<!-- SCORE MODAL -->
+<div class="overlay hidden" id="score-overlay" onclick="overlayClick(event,'score-overlay')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Natija kiritish</div>
+      <button class="modal-close" onclick="closeModal('score-overlay')">✕</button>
+    </div>
+    <div class="score-vs">
+      <div class="score-team">
+        <img id="score-my-logo" src="" alt="" style="width:48px;height:48px;object-fit:contain;margin-bottom:6px">
+        <div class="score-team-name" id="score-my-name">Sen</div>
+      </div>
+      <div class="vs-text">vs</div>
+      <div class="score-team">
+        <img id="score-opp-logo" src="" alt="" style="width:48px;height:48px;object-fit:contain;margin-bottom:6px">
+        <div class="score-team-name" id="score-opp-name">Raqib</div>
+      </div>
+    </div>
+    <div class="score-inputs">
+      <div class="score-input-wrap">
+        <div class="score-input-label">Sizning gollar</div>
+        <input type="number" class="score-input" id="input-my" min="0" max="20" placeholder="0" oninput="checkScoreReady()">
+      </div>
+      <div class="score-input-wrap">
+        <div class="score-input-label">Raqib gollari</div>
+        <input type="number" class="score-input" id="input-opp" min="0" max="20" placeholder="0" oninput="checkScoreReady()">
+      </div>
+    </div>
+    <button class="submit-btn" id="submit-score-btn" onclick="submitScore()">Natijani yuborish</button>
+  </div>
+</div>
+
+<script>
 const TEAMS = [
-  { name: "Arsenal", short: "ARS", logo: "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg" },
-  { name: "Aston Villa", short: "AVL", logo: "https://upload.wikimedia.org/wikipedia/en/f/f9/Aston_Villa_FC_crest_%282016%29.svg" },
-  { name: "Bournemouth", short: "BOU", logo: "https://upload.wikimedia.org/wikipedia/en/e/e5/AFC_Bournemouth_%282013%29.svg" },
-  { name: "Brentford", short: "BRE", logo: "https://upload.wikimedia.org/wikipedia/en/2/2a/Brentford_FC_crest.svg" },
-  { name: "Brighton", short: "BHA", logo: "https://upload.wikimedia.org/wikipedia/en/f/fd/Brighton_%26_Hove_Albion_logo.svg" },
-  { name: "Chelsea", short: "CHE", logo: "https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg" },
-  { name: "Crystal Palace", short: "CRY", logo: "https://upload.wikimedia.org/wikipedia/en/a/a2/Crystal_Palace_FC_logo_%282022%29.svg" },
-  { name: "Everton", short: "EVE", logo: "https://upload.wikimedia.org/wikipedia/en/7/7c/Everton_FC_logo.svg" },
-  { name: "Fulham", short: "FUL", logo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Fulham_FC_%28shield%29.svg" },
-  { name: "Ipswich", short: "IPS", logo: "https://upload.wikimedia.org/wikipedia/en/4/43/Ipswich_Town.svg" },
-  { name: "Leicester", short: "LEI", logo: "https://upload.wikimedia.org/wikipedia/en/2/2d/Leicester_City_crest.svg" },
-  { name: "Liverpool", short: "LIV", logo: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" },
-  { name: "Man City", short: "MCI", logo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg" },
-  { name: "Man United", short: "MUN", logo: "https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg" },
-  { name: "Newcastle", short: "NEW", logo: "https://upload.wikimedia.org/wikipedia/en/5/56/Newcastle_United_Logo.svg" },
-  { name: "Nottm Forest", short: "NFO", logo: "https://upload.wikimedia.org/wikipedia/en/e/e5/Nottingham_Forest_F.C._logo.svg" },
-  { name: "Southampton", short: "SOU", logo: "https://upload.wikimedia.org/wikipedia/en/c/c9/FC_Southampton.svg" },
-  { name: "Tottenham", short: "TOT", logo: "https://upload.wikimedia.org/wikipedia/en/b/b4/Tottenham_Hotspur.svg" },
-  { name: "West Ham", short: "WHU", logo: "https://upload.wikimedia.org/wikipedia/en/c/c2/West_Ham_United_FC_logo.svg" },
-  { name: "Wolves", short: "WOL", logo: "https://upload.wikimedia.org/wikipedia/en/f/fc/Wolverhampton_Wanderers.svg" },
+  { name: "Arsenal", logo: "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg" },
+  { name: "Aston Villa", logo: "https://upload.wikimedia.org/wikipedia/en/f/f9/Aston_Villa_FC_crest_%282016%29.svg" },
+  { name: "Bournemouth", logo: "https://upload.wikimedia.org/wikipedia/en/e/e5/AFC_Bournemouth_%282013%29.svg" },
+  { name: "Brentford", logo: "https://upload.wikimedia.org/wikipedia/en/2/2a/Brentford_FC_crest.svg" },
+  { name: "Brighton", logo: "https://upload.wikimedia.org/wikipedia/en/f/fd/Brighton_%26_Hove_Albion_logo.svg" },
+  { name: "Chelsea", logo: "https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg" },
+  { name: "Crystal Palace", logo: "https://upload.wikimedia.org/wikipedia/en/a/a2/Crystal_Palace_FC_logo_%282022%29.svg" },
+  { name: "Everton", logo: "https://upload.wikimedia.org/wikipedia/en/7/7c/Everton_FC_logo.svg" },
+  { name: "Fulham", logo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Fulham_FC_%28shield%29.svg" },
+  { name: "Ipswich", logo: "https://upload.wikimedia.org/wikipedia/en/4/43/Ipswich_Town.svg" },
+  { name: "Leicester", logo: "https://upload.wikimedia.org/wikipedia/en/2/2d/Leicester_City_crest.svg" },
+  { name: "Liverpool", logo: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" },
+  { name: "Man City", logo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg" },
+  { name: "Man United", logo: "https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg" },
+  { name: "Newcastle", logo: "https://upload.wikimedia.org/wikipedia/en/5/56/Newcastle_United_Logo.svg" },
+  { name: "Nottm Forest", logo: "https://upload.wikimedia.org/wikipedia/en/e/e5/Nottingham_Forest_F.C._logo.svg" },
+  { name: "Southampton", logo: "https://upload.wikimedia.org/wikipedia/en/c/c9/FC_Southampton.svg" },
+  { name: "Tottenham", logo: "https://upload.wikimedia.org/wikipedia/en/b/b4/Tottenham_Hotspur.svg" },
+  { name: "West Ham", logo: "https://upload.wikimedia.org/wikipedia/en/c/c2/West_Ham_United_FC_logo.svg" },
+  { name: "Wolves", logo: "https://upload.wikimedia.org/wikipedia/en/f/fc/Wolverhampton_Wanderers.svg" },
 ];
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState("Asosiy");
-  const [showJoinModal, setShowJoinModal] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState(null);
-  const [joined, setJoined] = useState(false);
-  const [joinedTeam, setJoinedTeam] = useState(null);
-  const [participants, setParticipants] = useState(0);
-
-  const [matches, setMatches] = useState([
+let state = {
+  joined: false,
+  joinedTeam: null,
+  participants: 0,
+  selectedTeam: null,
+  activeMatchId: null,
+  matches: [
     { id: 1, opponent: "Man City", oppLogo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg", myScore: null, oppScore: null, status: "pending_score" },
     { id: 2, opponent: "Liverpool", oppLogo: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg", myScore: null, oppScore: null, status: "pending_score" },
     { id: 3, opponent: "Arsenal", oppLogo: "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg", myScore: 2, oppScore: 1, status: "pending_confirm" },
-  ]);
-  const [showScoreModal, setShowScoreModal] = useState(false);
-  const [activeMatch, setActiveMatch] = useState(null);
-  const [inputMy, setInputMy] = useState("");
-  const [inputOpp, setInputOpp] = useState("");
+  ]
+};
 
-  function openScoreModal(match) {
-    setActiveMatch(match);
-    setInputMy(match.myScore !== null ? String(match.myScore) : "");
-    setInputOpp(match.oppScore !== null ? String(match.oppScore) : "");
-    setShowScoreModal(true);
-  }
+// Init
+buildTeamGrid();
+renderMatches();
 
-  function submitScore() {
-    if (inputMy === "" || inputOpp === "") return;
-    setMatches(ms => ms.map(m =>
-      m.id === activeMatch.id
-        ? { ...m, myScore: Number(inputMy), oppScore: Number(inputOpp), status: "pending_confirm" }
-        : m
-    ));
-    setShowScoreModal(false);
-  }
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.remove('active');
+    const dot = n.querySelector('.nav-dot');
+    if (dot) dot.remove();
+  });
+  el.classList.add('active');
+  const dot = document.createElement('div');
+  dot.className = 'nav-dot';
+  el.appendChild(dot);
+}
 
-  function confirmMatch(id) {
-    setMatches(ms => ms.map(m =>
-      m.id === id ? { ...m, status: "confirmed" } : m
-    ));
-  }
+function openJoinModal() {
+  document.getElementById('join-overlay').classList.remove('hidden');
+}
 
-  const confirmed = matches.filter(m => m.status === "confirmed");
-  const wins = confirmed.filter(m => m.myScore > m.oppScore).length;
-  const draws = confirmed.filter(m => m.myScore === m.oppScore).length;
-  const losses = confirmed.filter(m => m.myScore < m.oppScore).length;
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+  state.selectedTeam = null;
+  document.querySelectorAll('.team-item').forEach(t => t.classList.remove('selected'));
+  const btn = document.getElementById('join-confirm-btn');
+  btn.textContent = "Jamoa tanlang";
+  btn.style.opacity = '0.4';
+  btn.style.pointerEvents = 'none';
+}
 
-  function handleJoin() {
-    if (selectedTeam) {
-      setJoined(true);
-      setJoinedTeam(selectedTeam);
-      setParticipants(p => p + 1);
-      setShowJoinModal(false);
-      setSelectedTeam(null);
-    }
-  }
-
-  const S = {
-    app: { minHeight: "100vh", background: "#0a0d1a", color: "#fff", fontFamily: "'Segoe UI', sans-serif", maxWidth: 430, margin: "0 auto", display: "flex", flexDirection: "column", position: "relative" },
-    header: { padding: "18px 20px 12px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid #1a2040" },
-    logoBox: { width: 36, height: 36, background: "linear-gradient(135deg, #6c63ff, #00d4ff)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 },
-    logoText: { fontWeight: 800, fontSize: 18, letterSpacing: 2, background: "linear-gradient(90deg, #00d4ff, #6c63ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" },
-    langBadge: { background: "#1e2a5e", color: "#00d4ff", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, border: "1px solid #00d4ff44" },
-    content: { flex: 1, overflowY: "auto", paddingBottom: 80 },
-    card: { background: "#13172a", border: "1px solid #1e2545", borderRadius: 16, padding: "18px 16px 16px", marginBottom: 14 },
-    liveTag: { background: "#2a0a0a", color: "#e74c3c", border: "1px solid #e74c3c55", borderRadius: 20, padding: "4px 12px", fontSize: 11, fontWeight: 800, letterSpacing: 1 },
-    progress: { height: 4, background: "#1e2545", borderRadius: 4, marginBottom: 16, overflow: "hidden" },
-    joinBtn: { background: "linear-gradient(90deg, #00c6ff, #7b5cff)", borderRadius: 12, padding: "13px 0", textAlign: "center", fontWeight: 700, fontSize: 15, color: "#fff", cursor: "pointer" },
-    joinedBtn: { background: "#002a18", border: "1px solid #00c97a55", borderRadius: 12, padding: "13px 0", textAlign: "center", fontWeight: 700, fontSize: 15, color: "#00c97a" },
-    nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, background: "#0a0d1a", borderTop: "1px solid #1a2040", display: "flex", justifyContent: "space-around", padding: "12px 0 16px", zIndex: 100 },
-    overlay: { position: "fixed", inset: 0, background: "#000000cc", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 200 },
-    modal: { background: "#0f1530", border: "1px solid #1e2a50", borderRadius: "20px 20px 0 0", padding: "20px 16px 32px", width: "100%", maxWidth: 430, maxHeight: "80vh", overflowY: "auto" },
-  };
-
-  return (
-    <div style={S.app}>
-      {/* Header */}
-      <div style={S.header}>
-        <div style={S.logoBox}>⚽</div>
-        <span style={S.logoText}>APL BOT</span>
-        <div style={{ marginLeft: "auto" }}>
-          <span style={S.langBadge}>UZ</span>
-        </div>
-      </div>
-
-      <div style={S.content}>
-        {/* ASOSIY */}
-        {activeTab === "Asosiy" && (
-          <div style={{ padding: "16px 14px" }}>
-            <div style={S.card}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                <div style={{ fontWeight: 800, fontSize: 17 }}>APL — Asosiy Liga</div>
-                <div style={S.liveTag}>JONLI</div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", marginBottom: 14 }}>
-                <div>
-                  <div style={{ fontSize: 11, color: "#556699", marginBottom: 2 }}>Ishtirokchilar</div>
-                  <div style={{ fontSize: 15, fontWeight: 700 }}>{participants} / 20</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: 11, color: "#556699", marginBottom: 2 }}>Format</div>
-                  <div style={{ fontSize: 15, fontWeight: 700 }}>Liga</div>
-                </div>
-              </div>
-              <div style={S.progress}>
-                <div style={{ height: "100%", width: `${(participants / 20) * 100}%`, background: "linear-gradient(90deg, #6c63ff, #00d4ff)", borderRadius: 4 }} />
-              </div>
-              {!joined
-                ? <div onClick={() => setShowJoinModal(true)} style={S.joinBtn}>+ Qo'shilish</div>
-                : <div style={S.joinedBtn}>✅ {joinedTeam?.name} bilan qo'shildingiz</div>
-              }
-            </div>
-          </div>
-        )}
-
-        {/* REYTING */}
-        {activeTab === "Reyting" && (
-          <div style={{ padding: "20px 16px" }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#8899cc", marginBottom: 16 }}>REYTING JADVALI</div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-              <div style={{ background: "linear-gradient(135deg, #6c63ff, #00d4ff)", borderRadius: 20, padding: "7px 18px", fontSize: 13, fontWeight: 700 }}>APL</div>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "28px 1fr 42px 32px 32px 32px 32px 32px 42px", gap: 4, padding: "8px 12px", background: "#0d1225", borderRadius: 10, marginBottom: 8, fontSize: 11, color: "#556699", fontWeight: 700 }}>
-              {["#", "O'yinchi", "B", "G", "D", "M", "GF", "GA", "GD"].map(h => (
-                <div key={h} style={{ textAlign: h === "O'yinchi" ? "left" : "center" }}>{h}</div>
-              ))}
-            </div>
-            <div style={{ textAlign: "center", padding: "40px 20px", color: "#334466", fontSize: 13 }}>
-              <div style={{ fontSize: 36, marginBottom: 12 }}>📋</div>
-              Hali ma'lumot yo'q
-            </div>
-          </div>
-        )}
-
-        {/* PROFIL */}
-        {activeTab === "Profil" && (
-          <div style={{ padding: "20px 16px" }}>
-            <div style={{ background: "linear-gradient(135deg, #0f1535, #1a2060)", border: "1px solid #2a3a80", borderRadius: 18, padding: 20, marginBottom: 20, display: "flex", alignItems: "center", gap: 16 }}>
-              {joinedTeam
-                ? <img src={joinedTeam.logo} alt={joinedTeam.name} style={{ width: 56, height: 56, objectFit: "contain" }} />
-                : <div style={{ width: 60, height: 60, background: "#1a2040", border: "2px dashed #2a3a70", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, color: "#334466" }}>👤</div>
-              }
-              <div>
-                <div style={{ fontWeight: 800, fontSize: 16, color: joinedTeam ? "#fff" : "#334466" }}>{joinedTeam ? joinedTeam.name : "— —"}</div>
-                <div style={{ color: "#556699", fontSize: 13 }}>@username</div>
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 20 }}>
-              {[
-                { val: "—", label: "O'rin" },
-                { val: wins, label: "G'alaba" },
-                { val: draws, label: "Durang" },
-                { val: losses, label: "Mag'lubiyat" },
-              ].map(({ val, label }) => (
-                <div key={label} style={{ background: "#111830", border: "1px solid #1e2a50", borderRadius: 12, padding: "14px 8px", textAlign: "center" }}>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: label !== "O'rin" && confirmed.length > 0 ? "#00d4ff" : "#334466" }}>{val}</div>
-                  <div style={{ fontSize: 9, color: "#556699", marginTop: 4 }}>{label}</div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#8899cc", marginBottom: 12 }}>MENING O'YINLARIM</div>
-
-            {matches.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "40px 20px", color: "#334466", fontSize: 13 }}>
-                <div style={{ fontSize: 36, marginBottom: 12 }}>🎮</div>
-                Hali o'yin yo'q
-              </div>
-            ) : matches.map((match) => (
-              <div key={match.id} style={{ background: "#0f1530", border: "1px solid #1e2a50", borderRadius: 14, padding: "14px 16px", marginBottom: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flex: 1 }}>
-                    {joinedTeam
-                      ? <img src={joinedTeam.logo} alt={joinedTeam.name} style={{ width: 32, height: 32, objectFit: "contain" }} />
-                      : <div style={{ width: 32, height: 32, background: "#1a2040", borderRadius: "50%" }} />
-                    }
-                    <span style={{ fontWeight: 700, fontSize: 11, color: "#aab", textAlign: "center" }}>{joinedTeam?.name || "Sen"}</span>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 10px" }}>
-                    <span style={{ fontWeight: 900, fontSize: 24, color: match.status === "confirmed" ? "#00d4ff" : "#fff", minWidth: 22, textAlign: "center" }}>
-                      {match.myScore !== null ? match.myScore : "—"}
-                    </span>
-                    <span style={{ color: "#334466", fontSize: 18, fontWeight: 700 }}>:</span>
-                    <span style={{ fontWeight: 900, fontSize: 24, color: match.status === "confirmed" ? "#00d4ff" : "#fff", minWidth: 22, textAlign: "center" }}>
-                      {match.oppScore !== null ? match.oppScore : "—"}
-                    </span>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flex: 1 }}>
-                    <img src={match.oppLogo} alt={match.opponent} style={{ width: 32, height: 32, objectFit: "contain" }} />
-                    <span style={{ fontWeight: 700, fontSize: 11, color: "#aab", textAlign: "center" }}>{match.opponent}</span>
-                  </div>
-                </div>
-
-                {match.status === "pending_score" && (
-                  <div onClick={() => openScoreModal(match)} style={{ background: "linear-gradient(90deg, #6c63ff, #00d4ff)", borderRadius: 10, padding: "9px 0", textAlign: "center", fontWeight: 700, fontSize: 13, color: "#fff", cursor: "pointer" }}>
-                    📝 Natija kiritish
-                  </div>
-                )}
-                {match.status === "pending_confirm" && (
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <div style={{ flex: 1, background: "#1a2040", borderRadius: 10, padding: "9px 0", textAlign: "center", fontSize: 12, color: "#f5a623", fontWeight: 700 }}>
-                      ⏳ Raqib tasdiqlashi kutilmoqda
-                    </div>
-                    <div onClick={() => confirmMatch(match.id)} style={{ background: "#00c97a22", border: "1px solid #00c97a", borderRadius: 10, padding: "9px 14px", textAlign: "center", fontSize: 12, color: "#00c97a", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
-                      ✅ Tasdiqlash
-                    </div>
-                  </div>
-                )}
-                {match.status === "confirmed" && (
-                  <div style={{ background: "#002a18", borderRadius: 10, padding: "9px 0", textAlign: "center", fontSize: 12, color: "#00c97a", fontWeight: 700 }}>
-                    ✅ TASDIQLANDI
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* SOVRINLAR */}
-        {activeTab === "Sovrinlar" && (
-          <div style={{ padding: "20px 16px" }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#556699", marginBottom: 16 }}>SOVRINLAR</div>
-            {[
-              { icon: "👟", title: "Oltin Butsa", sub: "Eng ko'p gol urgan o'yinchi" },
-              { icon: "🏆", title: "Oltin To'p", sub: "Turnir g'olibi" },
-              { icon: "🥇", title: "Liga Kubogi", sub: "Liga chempioni" },
-            ].map((s, i) => (
-              <div key={i} style={{ background: "linear-gradient(135deg, #0f1535, #141c40)", border: "1px solid #1e2a50", borderRadius: 16, padding: 18, marginBottom: 14, display: "flex", gap: 16, alignItems: "center" }}>
-                <div style={{ fontSize: 36 }}>{s.icon}</div>
-                <div>
-                  <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 4 }}>{s.title}</div>
-                  <div style={{ color: "#556699", fontSize: 12, marginBottom: 8 }}>{s.sub}</div>
-                  <div style={{ color: "#334466", fontSize: 12, background: "#0d1225", borderRadius: 8, padding: "4px 10px", display: "inline-block" }}>Aniqlanmagan</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Bottom Nav */}
-      <div style={S.nav}>
-        {[
-          { name: "Asosiy", icon: "🏠" },
-          { name: "Reyting", icon: "🏆" },
-          { name: "Profil", icon: "👤" },
-          { name: "Sovrinlar", icon: "🎁" },
-        ].map(({ name, icon }) => (
-          <div key={name} onClick={() => setActiveTab(name)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: "pointer", opacity: activeTab === name ? 1 : 0.4 }}>
-            <span style={{ fontSize: 20 }}>{icon}</span>
-            <span style={{ fontSize: 10, fontWeight: 700, color: activeTab === name ? "#00d4ff" : "#556699", letterSpacing: 0.5 }}>{name}</span>
-            {activeTab === name && <div style={{ width: 20, height: 2, background: "linear-gradient(90deg, #6c63ff, #00d4ff)", borderRadius: 2 }} />}
-          </div>
-        ))}
-      </div>
-
-      {/* JOIN MODAL */}
-      {showJoinModal && (
-        <div style={S.overlay} onClick={(e) => { if (e.target === e.currentTarget) { setShowJoinModal(false); setSelectedTeam(null); } }}>
-          <div style={S.modal}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-              <div style={{ fontWeight: 800, fontSize: 18 }}>Jamoa tanlang</div>
-              <div onClick={() => { setShowJoinModal(false); setSelectedTeam(null); }} style={{ fontSize: 20, cursor: "pointer", color: "#556699", padding: "0 4px" }}>✕</div>
-            </div>
-            <div style={{ fontSize: 12, color: "#556699", marginBottom: 16 }}>Premier League 2025/26 jamoalaridan birini tanlang</div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 20 }}>
-              {TEAMS.map((team) => {
-                const isSel = selectedTeam?.name === team.name;
-                return (
-                  <div
-                    key={team.name}
-                    onClick={() => setSelectedTeam(team)}
-                    style={{
-                      background: isSel ? "#1a1060" : "#0d1225",
-                      border: isSel ? "2px solid #6c63ff" : "1px solid #1e2545",
-                      borderRadius: 12,
-                      padding: "10px 6px",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: 6,
-                      cursor: "pointer",
-                    }}
-                  >
-                    <img src={team.logo} alt={team.name} style={{ width: 32, height: 32, objectFit: "contain" }} />
-                    <span style={{ fontSize: 9, color: isSel ? "#00d4ff" : "#778899", fontWeight: 700, textAlign: "center", lineHei
+function overlayClick(e, id) {
+  if (e.target === e.currentTarget) closeModal(id);
