@@ -284,7 +284,7 @@
         <div class="profile-user" id="profile-user">@username</div>
       </div>
     </div>
-    <div class="stats-grd">
+    <div class="stats-grid">
       <div class="stat-box"><div class="stat-val" id="stat-rank">—</div><div class="stat-label">O'rin</div></div>
       <div class="stat-box"><div class="stat-val" id="stat-wins">0</div><div class="stat-label">G'alaba</div></div>
       <div class="stat-box"><div class="stat-val" id="stat-draws">0</div><div class="stat-label">Durang</div></div>
@@ -312,6 +312,24 @@
       </div>
     </div>
   </div>
+
+  <!-- ADMIN -->
+  <div class="tab" id="tab-admin">
+    <div style="padding:4px 2px">
+      <div class="section-title">⚙️ ADMIN PANEL</div>
+      <div class="card">
+        <div style="font-weight:800;font-size:15px;margin-bottom:14px">👥 O'yinchilar (<span id="admin-count">0</span>)</div>
+        <div id="admin-players-list"></div>
+      </div>
+      <div class="card">
+        <div style="font-weight:800;font-size:15px;margin-bottom:14px">🛠 Amallar</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button onclick="adminTriggerDraw()" style="background:linear-gradient(90deg,#6c63ff,#00d4ff);border:none;border-radius:12px;padding:13px;color:#fff;font-weight:700;font-size:14px;cursor:pointer">🎯 Qura Tashlash</button>
+          <button onclick="adminReset()" style="background:#2a0a0a;border:1px solid #e74c3c55;border-radius:12px;padding:13px;color:#e74c3c;font-weight:700;font-size:14px;cursor:pointer">🗑 Hammasini Tozalash (Reset)</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- BOTTOM NAV -->
@@ -332,6 +350,10 @@
   <div class="nav-item" data-tab="sovrinlar">
     <span class="nav-icon">🎁</span>
     <span class="nav-label">Sovrinlar</span>
+  </div>
+  <div class="nav-item" data-tab="admin" id="admin-nav" style="display:none">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label" style="color:#e74c3c">Admin</span>
   </div>
 </div>
 
@@ -609,6 +631,7 @@ document.querySelector('.bottom-nav').addEventListener('click', function(e) {
       renderStandings();
     });
   }
+  if (tab === 'admin' && isAdmin()) renderAdminTab();
 });
 
 // ---- BUILD TEAM GRID ----
@@ -776,7 +799,7 @@ function renderDrawResult(schedule) {
 
   var currentRound = 0;
   schedule.forEach(function(match) {
-    if (match.round !== currentRouund) {
+    if (match.round !== currentRound) {
       currentRound = match.round;
       var lbl = document.createElement('div');
       lbl.className = 'draw-round-label';
@@ -931,6 +954,94 @@ function renderStandings() {
       '⏳ Qura ' + (20 - state.players.length) + ' ta o\'yinchi qolganda tashlanadi</div>';
   }
 }
+
+// ---- ADMIN ----
+var ADMIN_USERNAME = '@yusupbaevvvv';
+
+function isAdmin() {
+  return getUserUsername() === ADMIN_USERNAME;
+}
+
+function initAdmin() {
+  if (isAdmin()) {
+    document.getElementById('admin-nav').style.display = 'flex';
+  }
+}
+
+function renderAdminTab() {
+  loadSharedState(function() {
+    document.getElementById('admin-count').textContent = state.players.length;
+    var list = document.getElementById('admin-players-list');
+    if (state.players.length === 0) {
+      list.innerHTML = '<div style="color:#556699;font-size:13px;text-align:center;padding:10px">O\'yinchilar yo\'q</div>';
+      return;
+    }
+    list.innerHTML = state.players.map(function(p, i) {
+      var t = TEAMS[p.teamIndex];
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1e2545">' +
+        '<div style="display:flex;align-items:center;gap:10px">' +
+          '<img src="' + t.logo + '" style="width:28px;height:28px;object-fit:contain">' +
+          '<div>' +
+            '<div style="font-size:13px;font-weight:700">' + t.name + '</div>' +
+            '<div style="font-size:11px;color:#556699">' + (p.username || p.name) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<button onclick="adminRemovePlayer(' + i + ')" style="background:#2a0a0a;border:1px solid #e74c3c55;border-radius:8px;padding:5px 10px;color:#e74c3c;font-size:11px;font-weight:700;cursor:pointer">O\'chirish</button>' +
+      '</div>';
+    }).join('');
+  });
+}
+
+function adminRemovePlayer(index) {
+  if (!confirm('Rostdan o\'chirasizmi?')) return;
+  state.players.splice(index, 1);
+  state.participants = state.players.length;
+  showLoader('O\'chirilmoqda...');
+  saveSharedState(function() {
+    hideLoader();
+    renderAdminTab();
+    document.getElementById('participants').textContent = state.participants;
+    document.getElementById('progress-fill').style.width = (state.participants / MAX_PLAYERS * 100) + '%';
+  });
+}
+
+function adminTriggerDraw() {
+  if (state.players.length < 2) { alert('Kamida 2 ta o\'yinchi kerak!'); return; }
+  if (!confirm('Qura tashlansinmi?')) return;
+  triggerDraw();
+}
+
+function adminReset() {
+  if (!confirm('BARCHA ma\'lumotlar o\'chadi! Ishonchingiz komilmi?')) return;
+  state.participants = 0;
+  state.drawDone = false;
+  state.schedule = [];
+  state.players = [];
+  state.allMatches = {};
+  state.joined = false;
+  state.joinedTeam = null;
+  state.matches = [];
+  try { localStorage.removeItem('aplbot_me'); } catch(e) {}
+  showLoader('Tozalanmoqda...');
+  saveSharedState(function() {
+    hideLoader();
+    document.getElementById('participants').textContent = 0;
+    document.getElementById('progress-fill').style.width = '0%';
+    document.getElementById('join-area').innerHTML = '<button class="join-btn" id="join-btn">+ Qo\'shilish</button>';
+    document.getElementById('join-btn').addEventListener('click', function() {
+      if (state.participants >= MAX_PLAYERS) return;
+      buildTeamGrid();
+      state.selectedTeamIndex = -1;
+      document.getElementById('join-overlay').classList.remove('hidden');
+    });
+    document.getElementById('schedule-card').style.display = 'none';
+    renderAdminTab();
+    renderStandings();
+  });
+}
+
+// Admin nav ni ko'rsatish
+initAdmin();
 
 // ---- INIT ----
 document.getElementById('profile-name').textContent = getUserName();
