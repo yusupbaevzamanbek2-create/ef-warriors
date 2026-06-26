@@ -37,7 +37,6 @@
   .match-teams { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   .team-side { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
   .team-logo { width: 32px; height: 32px; object-fit: contain; }
-  .team-name { font-weight: 700; font-size: 11px; color: #aab; text-align: center; }
   .score-area { display: flex; align-items: center; gap: 6px; padding: 0 10px; }
   .score-num { font-weight: 900; font-size: 24px; color: #fff; min-width: 22px; text-align: center; }
   .score-num.confirmed { color: #00d4ff; }
@@ -45,17 +44,15 @@
   .action-btn { background: linear-gradient(90deg, #6c63ff, #00d4ff); border-radius: 10px; padding: 9px 0; text-align: center; font-weight: 700; font-size: 13px; color: #fff; cursor: pointer; width: 100%; border: none; display: block; }
   .pending-row { display: flex; gap: 8px; }
   .pending-label { flex: 1; background: #1a2040; border-radius: 10px; padding: 9px 0; text-align: center; font-size: 12px; color: #f5a623; font-weight: 700; }
-  .confirm-btn { background: #00c97a22; border: 1px solid #00c97a; border-radius: 10px; padding: 9px 14px; text-align: center; font-size: 12px; color: #00c97a; font-weight: 700; cursor: pointer; white-space: nowrap; border: none; }
+  .confirm-btn { background: #00c97a22; border: 1px solid #00c97a; border-radius: 10px; padding: 9px 14px; text-align: center; font-size: 12px; color: #00c97a; font-weight: 700; cursor: pointer; white-space: nowrap; }
   .confirmed-label { background: #002a18; border-radius: 10px; padding: 9px 0; text-align: center; font-size: 12px; color: #00c97a; font-weight: 700; width: 100%; }
   .profile-card { background: linear-gradient(135deg, #0f1535, #1a2060); border: 1px solid #2a3a80; border-radius: 18px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; }
   .profile-avatar { width: 60px; height: 60px; background: #1a2040; border: 2px dashed #2a3a70; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #334466; flex-shrink: 0; }
   .profile-logo { width: 56px; height: 56px; object-fit: contain; flex-shrink: 0; border-radius: 50%; }
-  .profile-name { font-weight: 800; font-size: 16px; color: #334466; }
-  .profile-name.joined { color: #fff; }
-  .profile-user { color: #556699; font-size: 13px; }
   .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
   .stat-box { background: #111830; border: 1px solid #1e2a50; border-radius: 12px; padding: 14px 8px; text-align: center; }
   .stat-val { font-size: 20px; font-weight: 900; color: #334466; }
+  .stat-val.active-stat { color: #fff; }
   .stat-label { font-size: 9px; color: #556699; margin-top: 4px; }
   .table-header { display: grid; grid-template-columns: 28px 1fr 42px 32px 32px 32px 32px 32px 42px; gap: 4px; padding: 8px 12px; background: #0d1225; border-radius: 10px; margin-bottom: 8px; font-size: 11px; color: #556699; font-weight: 700; }
   .empty-state { text-align: center; padding: 40px 20px; color: #334466; font-size: 13px; }
@@ -89,6 +86,25 @@
   .score-input::-webkit-outer-spin-button, .score-input::-webkit-inner-spin-button { -webkit-appearance: none; }
   .submit-btn { border-radius: 12px; padding: 14px 0; text-align: center; font-weight: 700; font-size: 15px; cursor: pointer; width: 100%; border: none; background: #1a2040; color: #334466; display: block; }
   .submit-btn.ready { background: linear-gradient(90deg, #00c6ff, #7b5cff); color: #fff; }
+
+  /* DRAW MODAL */
+  .draw-overlay { position: fixed; inset: 0; background: #000000ee; display: flex; align-items: center; justify-content: center; z-index: 300; }
+  .draw-overlay.hidden { display: none; }
+  .draw-box { background: linear-gradient(135deg, #0f1535, #1a2060); border: 1px solid #6c63ff55; border-radius: 24px; padding: 28px 20px 24px; width: 90%; max-width: 360px; text-align: center; }
+  .draw-title { font-size: 22px; font-weight: 900; margin-bottom: 4px; background: linear-gradient(90deg,#00d4ff,#6c63ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .draw-sub { font-size: 12px; color: #556699; margin-bottom: 24px; }
+  .draw-pairs { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; max-height: 50vh; overflow-y: auto; }
+  .draw-pair { background: #0d1225; border: 1px solid #1e2545; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .draw-pair-team { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; flex: 1; }
+  .draw-pair-team img { width: 24px; height: 24px; object-fit: contain; }
+  .draw-vs-badge { font-size: 10px; color: #334466; font-weight: 700; padding: 0 8px; }
+  .draw-pair-team.right { justify-content: flex-end; }
+  .draw-round-label { font-size: 9px; color: #556699; font-weight: 700; letter-spacing: 1px; margin: 8px 0 4px; text-align: left; }
+  .draw-close-btn { background: linear-gradient(90deg,#00c6ff,#7b5cff); border: none; border-radius: 12px; padding: 12px 0; width: 100%; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; }
+
+  /* SPINNER animation */
+  @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+  .draw-spinner { width: 48px; height: 48px; border: 4px solid #1e2545; border-top-color: #6c63ff; border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 16px; }
 </style>
 </head>
 <body>
@@ -122,6 +138,10 @@
         <button class="join-btn" id="join-btn">+ Qo'shilish</button>
       </div>
     </div>
+    <div class="card" id="schedule-card" style="display:none">
+      <div style="font-weight:800;font-size:15px;margin-bottom:14px">📅 Jadval</div>
+      <div id="schedule-list"></div>
+    </div>
   </div>
 
   <!-- REYTING -->
@@ -138,13 +158,15 @@
         <div style="text-align:center">GF</div><div style="text-align:center">GA</div>
         <div style="text-align:center">GD</div>
       </div>
-      <div class="empty-state"><div class="empty-icon">📋</div>Hali ma'lumot yo'q</div>
+      <div id="standings-list">
+        <div class="empty-state"><div class="empty-icon">📋</div>Hali ma'lumot yo'q</div>
+      </div>
     </div>
   </div>
 
   <!-- PROFIL -->
   <div class="tab" id="tab-profil">
-    <div class="profile-card">
+    <div class="profile-card" id="profile-card">
       <div class="profile-avatar" id="profile-avatar">👤</div>
       <div>
         <div class="profile-name" id="profile-name">— —</div>
@@ -247,6 +269,22 @@
   </div>
 </div>
 
+<!-- DRAW OVERLAY -->
+<div class="draw-overlay hidden" id="draw-overlay">
+  <div class="draw-box" id="draw-box">
+    <div id="draw-spinner-wrap">
+      <div class="draw-spinner"></div>
+      <div style="color:#556699;font-size:13px">Qura tashlanmoqda...</div>
+    </div>
+    <div id="draw-result-wrap" style="display:none">
+      <div class="draw-title">🎯 Qura Natijalari</div>
+      <div class="draw-sub">20 ta ishtirokchi to'ldi — liga jadvali tayyor!</div>
+      <div class="draw-pairs" id="draw-pairs-list"></div>
+      <button class="draw-close-btn" id="draw-close-btn">Jadvalni Ko'rish</button>
+    </div>
+  </div>
+</div>
+
 <script>
 var TEAMS = [
   { name: "Arsenal", logo: "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg" },
@@ -271,18 +309,38 @@ var TEAMS = [
   { name: "Wolves", logo: "https://upload.wikimedia.org/wikipedia/en/f/fc/Wolverhampton_Wanderers.svg" }
 ];
 
+var MAX_PLAYERS = 20;
+
 var state = {
   joined: false,
   joinedTeam: null,
   participants: 0,
   selectedTeamIndex: -1,
   activeMatchId: null,
-  matches: [
-    { id: 1, opponent: "Man City", oppLogo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg", myScore: null, oppScore: null, status: "pending_score" },
-    { id: 2, opponent: "Liverpool", oppLogo: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg", myScore: null, oppScore: null, status: "pending_score" },
-    { id: 3, opponent: "Arsenal", oppLogo: "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg", myScore: 2, oppScore: 1, status: "pending_confirm" }
-  ]
+  drawDone: false,
+  schedule: [], // [{round, home, away}]
+  matches: [], // user's own matches — starts empty, filled after draw
+  players: []  // {name, team} list of all joined players
 };
+
+// ---- TELEGRAM USER ----
+var tgUser = null;
+try {
+  if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+    tgUser = window.Telegram.WebApp.initDataUnsafe.user || null;
+  }
+} catch(e) {}
+
+function getUserName() {
+  if (tgUser) {
+    return (tgUser.first_name || '') + (tgUser.last_name ? ' ' + tgUser.last_name : '');
+  }
+  return 'Siz';
+}
+function getUserUsername() {
+  if (tgUser && tgUser.username) return '@' + tgUser.username;
+  return '@username';
+}
 
 // ---- BOTTOM NAV ----
 document.querySelector('.bottom-nav').addEventListener('click', function(e) {
@@ -304,7 +362,8 @@ document.querySelector('.bottom-nav').addEventListener('click', function(e) {
   dot.className = 'nav-dot';
   item.appendChild(dot);
 
-  if (tab === 'profil') renderMatches();
+  if (tab === 'profil') renderProfile();
+  if (tab === 'reyting') renderStandings();
 });
 
 // ---- BUILD TEAM GRID ----
@@ -312,216 +371,405 @@ function buildTeamGrid() {
   var grid = document.getElementById('team-grid');
   grid.innerHTML = '';
   TEAMS.forEach(function(team, i) {
+    // Skip teams already taken
+    var taken = state.players.some(function(p) { return p.teamIndex === i; });
     var item = document.createElement('div');
-    item.className = 'team-item';
+    item.className = 'team-item' + (taken ? ' taken' : '');
     item.setAttribute('data-index', i);
+    if (taken) item.style.opacity = '0.35';
     item.innerHTML = '<img src="' + team.logo + '" alt="' + team.name + '"><span>' + team.name + '</span>';
-    item.addEventListener('click', function() {
-      document.querySelectorAll('.team-item').forEach(function(t) {
-        t.classList.remove('selected');
+    if (!taken) {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.team-item').forEach(function(t) { t.classList.remove('selected'); });
+        item.classList.add('selected');
+        state.selectedTeamIndex = i;
+        var btn = document.getElementById('join-confirm-btn');
+        btn.textContent = TEAMS[i].name + ' — Tanlash';
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
       });
-      item.classList.add('selected');
-      state.selectedTeamIndex = i;
-      var confirmBtn = document.getElementById('join-confirm-btn');
-      confirmBtn.textContent = team.name + ' bilan qo\'shilish';
-      confirmBtn.style.opacity = '1';
-      confirmBtn.style.pointerEvents = 'auto';
-    });
+    }
     grid.appendChild(item);
   });
 }
 
-// ---- JOIN BTN ----
+// ---- JOIN BUTTON ----
 document.getElementById('join-btn').addEventListener('click', function() {
+  if (state.participants >= MAX_PLAYERS) return;
   buildTeamGrid();
+  state.selectedTeamIndex = -1;
+  var btn = document.getElementById('join-confirm-btn');
+  btn.textContent = 'Jamoa tanlang';
+  btn.style.opacity = '0.4';
+  btn.style.pointerEvents = 'none';
   document.getElementById('join-overlay').classList.remove('hidden');
 });
 
-// ---- JOIN OVERLAY close on bg click ----
-document.getElementById('join-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeJoinModal();
-});
-document.getElementById('join-close').addEventListener('click', closeJoinModal);
-
-function closeJoinModal() {
+document.getElementById('join-close').addEventListener('click', function() {
   document.getElementById('join-overlay').classList.add('hidden');
-  state.selectedTeamIndex = -1;
-  var confirmBtn = document.getElementById('join-confirm-btn');
-  confirmBtn.textContent = 'Jamoa tanlang';
-  confirmBtn.style.opacity = '0.4';
-  confirmBtn.style.pointerEvents = 'none';
-}
+});
 
-// ---- JOIN CONFIRM ----
 document.getElementById('join-confirm-btn').addEventListener('click', function() {
-  if (state.selectedTeamIndex === -1) return;
+  if (state.selectedTeamIndex < 0) return;
   var team = TEAMS[state.selectedTeamIndex];
   state.joined = true;
-  state.joinedTeam = team;
-  state.participants = Math.min(state.participants + 1, 20);
+  state.joinedTeam = { index: state.selectedTeamIndex, name: team.name, logo: team.logo };
+  state.participants++;
+  state.players.push({ name: getUserName(), username: getUserUsername(), teamIndex: state.selectedTeamIndex });
 
-  // Update participants count
+  // Update UI
   document.getElementById('participants').textContent = state.participants;
-  document.getElementById('progress-fill').style.width = (state.participants / 20 * 100) + '%';
+  document.getElementById('progress-fill').style.width = (state.participants / MAX_PLAYERS * 100) + '%';
 
-  // Replace join button with joined label
+  // Replace join button
   var joinArea = document.getElementById('join-area');
-  joinArea.innerHTML = '<div class="joined-btn">✅ ' + team.name + ' jamoasida o\'ynayapsiz</div>';
+  joinArea.innerHTML = '<div class="joined-btn">✅ ' + team.name + ' — Qo\'shildingiz</div>';
 
-  // Update profile tab
-  var avatarEl = document.getElementById('profile-avatar');
-  avatarEl.innerHTML = '<img class="profile-logo" src="' + team.logo + '" alt="' + team.name + '">';
-  avatarEl.style.background = 'transparent';
-  avatarEl.style.border = 'none';
+  // Update profile card
+  document.getElementById('profile-avatar').innerHTML = '<img class="profile-logo" src="' + team.logo + '" alt="' + team.name + '">';
+  document.getElementById('profile-name').textContent = getUserName();
+  document.getElementById('profile-name').className = 'profile-name joined';
+  document.getElementById('profile-user').textContent = getUserUsername();
 
-  document.getElementById('profile-name').textContent = team.name;
-  document.getElementById('profile-name').classList.add('joined');
-  document.getElementById('stat-rank').textContent = state.participants;
+  document.getElementById('join-overlay').classList.add('hidden');
 
-  closeJoinModal();
-  renderMatches();
+  // If 20 players, trigger draw
+  if (state.participants >= MAX_PLAYERS) {
+    setTimeout(triggerDraw, 500);
+  }
 });
 
-// ---- RENDER MATCHES ----
+// ---- DRAW LOGIC ----
+function triggerDraw() {
+  document.getElementById('draw-overlay').classList.remove('hidden');
+  document.getElementById('draw-spinner-wrap').style.display = 'block';
+  document.getElementById('draw-result-wrap').style.display = 'none';
+
+  // Simulate spinner 2s then show results
+  setTimeout(function() {
+    var schedule = generateSchedule();
+    state.schedule = schedule;
+    state.drawDone = true;
+
+    // Build user's matches
+    state.matches = [];
+    schedule.forEach(function(match) {
+      var myTeamIndex = state.joinedTeam ? state.joinedTeam.index : -1;
+      if (myTeamIndex < 0) return;
+      if (match.home === myTeamIndex || match.away === myTeamIndex) {
+        var isHome = match.home === myTeamIndex;
+        var oppIndex = isHome ? match.away : match.home;
+        state.matches.push({
+          id: state.matches.length + 1,
+          round: match.round,
+          isHome: isHome,
+          oppIndex: oppIndex,
+          opponent: TEAMS[oppIndex].name,
+          oppLogo: TEAMS[oppIndex].logo,
+          myScore: null,
+          oppScore: null,
+          status: 'pending_score'
+        });
+      }
+    });
+
+    renderDrawResult(schedule);
+    renderScheduleCard(schedule);
+  }, 2000);
+}
+
+// Round-robin schedule: each pair plays once
+function generateSchedule() {
+  // All joined player team indices
+  var indices = state.players.map(function(p) { return p.teamIndex; });
+  // shuffle
+  for (var i = indices.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = indices[i]; indices[i] = indices[j]; indices[j] = tmp;
+  }
+
+  var schedule = [];
+  var round = 1;
+  var n = indices.length;
+  // Round-robin algorithm (circle method)
+  var teams = indices.slice();
+  if (n % 2 !== 0) teams.push(-1); // bye
+  var numRounds = teams.length - 1;
+  var half = teams.length / 2;
+
+  for (var r = 0; r < numRounds; r++) {
+    for (var k = 0; k < half; k++) {
+      var home = teams[k];
+      var away = teams[teams.length - 1 - k];
+      if (home !== -1 && away !== -1) {
+        schedule.push({ round: r + 1, home: home, away: away });
+      }
+    }
+    // rotate: keep teams[0] fixed, rotate rest
+    var last = teams[teams.length - 1];
+    for (var m = teams.length - 1; m > 1; m--) {
+      teams[m] = teams[m - 1];
+    }
+    teams[1] = last;
+  }
+  return schedule;
+}
+
+function renderDrawResult(schedule) {
+  document.getElementById('draw-spinner-wrap').style.display = 'none';
+  document.getElementById('draw-result-wrap').style.display = 'block';
+
+  var list = document.getElementById('draw-pairs-list');
+  list.innerHTML = '';
+
+  var currentRound = 0;
+  schedule.forEach(function(match) {
+    if (match.round !== currentRound) {
+      currentRound = match.round;
+      var lbl = document.createElement('div');
+      lbl.className = 'draw-round-label';
+      lbl.textContent = match.round + '-tur';
+      list.appendChild(lbl);
+    }
+    var home = TEAMS[match.home];
+    var away = TEAMS[match.away];
+    var pair = document.createElement('div');
+    pair.className = 'draw-pair';
+    pair.innerHTML =
+      '<div class="draw-pair-team"><img src="' + home.logo + '" alt=""><span>' + home.name + '</span></div>' +
+      '<div class="draw-vs-badge">vs</div>' +
+      '<div class="draw-pair-team right"><span>' + away.name + '</span><img src="' + away.logo + '" alt=""></div>';
+    list.appendChild(pair);
+  });
+}
+
+function renderScheduleCard(schedule) {
+  var card = document.getElementById('schedule-card');
+  card.style.display = 'block';
+  var list = document.getElementById('schedule-list');
+  list.innerHTML = '';
+
+  var currentRound = 0;
+  schedule.forEach(function(match) {
+    if (match.round !== currentRound) {
+      currentRound = match.round;
+      var lbl = document.createElement('div');
+      lbl.style.cssText = 'font-size:10px;color:#556699;font-weight:700;letter-spacing:1px;margin:10px 0 6px';
+      lbl.textContent = match.round + '-TUR';
+      list.appendChild(lbl);
+    }
+    var home = TEAMS[match.home];
+    var away = TEAMS[match.away];
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#0d1225;border-radius:10px;padding:8px 12px;margin-bottom:6px;font-size:12px;font-weight:700;';
+    row.innerHTML =
+      '<div style="display:flex;align-items:center;gap:6px;flex:1"><img src="' + home.logo + '" style="width:18px;height:18px;object-fit:contain"><span>' + home.name + '</span></div>' +
+      '<span style="color:#334466;font-size:10px;padding:0 8px">vs</span>' +
+      '<div style="display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end"><span>' + away.name + '</span><img src="' + away.logo + '" style="width:18px;height:18px;object-fit:contain"></div>';
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('draw-close-btn').addEventListener('click', function() {
+  document.getElementById('draw-overlay').classList.add('hidden');
+  renderMatches();
+  renderProfile();
+});
+
+// ---- SCORE MODAL ----
+document.getElementById('score-close').addEventListener('click', function() {
+  document.getElementById('score-overlay').classList.add('hidden');
+  state.activeMatchId = null;
+});
+
+var inputMy = document.getElementById('input-my');
+var inputOpp = document.getElementById('input-opp');
+
+function checkScoreReady() {
+  var a = inputMy.value.trim();
+  var b = inputOpp.value.trim();
+  var btn = document.getElementById('submit-score-btn');
+  if (a !== '' && b !== '' && !isNaN(parseInt(a)) && !isNaN(parseInt(b))) {
+    btn.classList.add('ready');
+    btn.textContent = 'Natijani yuborish';
+  } else {
+    btn.classList.remove('ready');
+    btn.textContent = 'Gollarni kiriting';
+  }
+}
+inputMy.addEventListener('input', checkScoreReady);
+inputOpp.addEventListener('input', checkScoreReady);
+
+document.getElementById('submit-score-btn').addEventListener('click', function() {
+  if (!document.getElementById('submit-score-btn').classList.contains('ready')) return;
+  var matchId = state.activeMatchId;
+  var match = state.matches.find(function(m) { return m.id === matchId; });
+  if (!match) return;
+
+  match.myScore = parseInt(inputMy.value);
+  match.oppScore = parseInt(inputOpp.value);
+  match.status = 'pending_confirm';
+
+  document.getElementById('score-overlay').classList.add('hidden');
+  state.activeMatchId = null;
+  inputMy.value = '';
+  inputOpp.value = '';
+  document.getElementById('submit-score-btn').classList.remove('ready');
+  renderMatches();
+  renderProfile();
+});
+
+// ---- RENDER MATCHES (in profile) ----
 function renderMatches() {
-  var list = document.getElementById('matches-list');
+  var container = document.getElementById('matches-list');
+  container.innerHTML = '';
+
   if (!state.joined) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-icon">⚽</div>Hali o\'yinlarga qo\'shilmadingiz</div>';
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">⚽</div>Hali turnirga qo\'shilmadingiz</div>';
     return;
   }
-  list.innerHTML = '';
+
+  if (!state.drawDone || state.matches.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Qura hali tashlanmagan.<br>20 ishtirokchi to\'lganda jadval tayyor bo\'ladi.</div>';
+    return;
+  }
+
   state.matches.forEach(function(match) {
     var card = document.createElement('div');
     card.className = 'match-card';
 
-    var myLogo = state.joinedTeam ? state.joinedTeam.logo : '';
-    var myName = state.joinedTeam ? state.joinedTeam.name : 'Sen';
+    var myTeam = state.joinedTeam;
+    var myLogo = myTeam ? myTeam.logo : '';
+    var myName = myTeam ? myTeam.name : 'Siz';
 
-    var scoreHtml = '';
-    if (match.status === 'pending_score') {
-      scoreHtml = '<span class="score-num">?</span><span class="score-sep">:</span><span class="score-num">?</span>';
-    } else if (match.status === 'pending_confirm') {
-      scoreHtml = '<span class="score-num confirmed">' + match.myScore + '</span><span class="score-sep">:</span><span class="score-num confirmed">' + match.oppScore + '</span>';
+    // Teams row
+    var teamsRow = '<div class="match-teams">' +
+      '<div class="team-side">' +
+        '<img class="team-logo" src="' + myLogo + '" alt="' + myName + '">' +
+        '<span class="team-name">' + myName + '</span>' +
+      '</div>' +
+      '<div class="score-area">';
+
+    if (match.myScore !== null && match.oppScore !== null) {
+      var cls = match.status === 'confirmed' ? ' confirmed' : '';
+      teamsRow += '<span class="score-num' + cls + '">' + match.myScore + '</span>' +
+        '<span class="score-sep">:</span>' +
+        '<span class="score-num' + cls + '">' + match.oppScore + '</span>';
     } else {
-      scoreHtml = '<span class="score-num confirmed">' + match.myScore + '</span><span class="score-sep">:</span><span class="score-num confirmed">' + match.oppScore + '</span>';
+      teamsRow += '<span style="color:#334466;font-size:13px;font-weight:700">vs</span>';
     }
 
-    card.innerHTML =
-      '<div class="match-teams">' +
-        '<div class="team-side">' +
-          '<img class="team-logo" src="' + myLogo + '" alt="' + myName + '">' +
-          '<div class="team-name">' + myName + '</div>' +
-        '</div>' +
-        '<div class="score-area">' + scoreHtml + '</div>' +
-        '<div class="team-side">' +
-          '<img class="team-logo" src="' + match.oppLogo + '" alt="' + match.opponent + '">' +
-          '<div class="team-name">' + match.opponent + '</div>' +
-        '</div>' +
+    teamsRow += '</div>' +
+      '<div class="team-side">' +
+        '<img class="team-logo" src="' + match.oppLogo + '" alt="' + match.opponent + '">' +
+        '<span class="team-name">' + match.opponent + '</span>' +
+      '</div>' +
+    '</div>';
+
+    // Action row
+    var actionRow = '';
+    if (match.status === 'pending_score') {
+      actionRow = '<button class="action-btn" data-matchid="' + match.id + '">Natija kiritish</button>';
+    } else if (match.status === 'pending_confirm') {
+      actionRow = '<div class="pending-row">' +
+        '<div class="pending-label">⏳ Tasdiqlash kutilmoqda</div>' +
+        '<button class="confirm-btn" data-matchid="' + match.id + '">✓ Tasdiqlash</button>' +
       '</div>';
-
-    // Action area
-    var actionDiv = document.createElement('div');
-    if (match.status === 'pending_score') {
-      var btn = document.createElement('button');
-      btn.className = 'action-btn';
-      btn.textContent = 'Natija kiritish';
-      btn.addEventListener('click', (function(m) {
-        return function() { openScoreModal(m); };
-      })(match));
-      actionDiv.appendChild(btn);
-    } else if (match.status === 'pending_confirm') {
-      actionDiv.className = 'pending-row';
-      actionDiv.innerHTML = '<div class="pending-label">⏳ Tasdiqlash kutilmoqda</div>';
-      var confirmBtn = document.createElement('button');
-      confirmBtn.className = 'confirm-btn';
-      confirmBtn.textContent = '✓ Tasdiqlash';
-      confirmBtn.addEventListener('click', (function(m) {
-        return function() {
-          m.status = 'confirmed';
-          updateStats();
-          renderMatches();
-        };
-      })(match));
-      actionDiv.appendChild(confirmBtn);
-    } else {
-      actionDiv.innerHTML = '<div class="confirmed-label">✅ Tasdiqlangan</div>';
+    } else if (match.status === 'confirmed') {
+      actionRow = '<div class="confirmed-label">✅ Tasdiqlandi</div>';
     }
-    card.appendChild(actionDiv);
-    list.appendChild(card);
+
+    var roundLabel = '<div style="font-size:10px;color:#556699;margin-bottom:8px;font-weight:700">' + match.round + '-TUR</div>';
+    card.innerHTML = roundLabel + teamsRow + actionRow;
+    container.appendChild(card);
+  });
+
+  // Action button handlers
+  container.querySelectorAll('.action-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = parseInt(btn.getAttribute('data-matchid'));
+      var match = state.matches.find(function(m) { return m.id === id; });
+      if (!match) return;
+      state.activeMatchId = id;
+      var myTeam = state.joinedTeam;
+      document.getElementById('score-my-logo').src = myTeam ? myTeam.logo : '';
+      document.getElementById('score-my-name').textContent = myTeam ? myTeam.name : 'Siz';
+      document.getElementById('score-opp-logo').src = match.oppLogo;
+      document.getElementById('score-opp-name').textContent = match.opponent;
+      inputMy.value = '';
+      inputOpp.value = '';
+      document.getElementById('submit-score-btn').classList.remove('ready');
+      document.getElementById('submit-score-btn').textContent = 'Gollarni kiriting';
+      document.getElementById('score-overlay').classList.remove('hidden');
+    });
+  });
+
+  container.querySelectorAll('.confirm-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = parseInt(btn.getAttribute('data-matchid'));
+      var match = state.matches.find(function(m) { return m.id === id; });
+      if (!match) return;
+      match.status = 'confirmed';
+      renderMatches();
+      updateStats();
+    });
   });
 }
 
-// ---- SCORE MODAL ----
-function openScoreModal(match) {
-  state.activeMatchId = match.id;
-  document.getElementById('score-my-logo').src = state.joinedTeam ? state.joinedTeam.logo : '';
-  document.getElementById('score-my-name').textContent = state.joinedTeam ? state.joinedTeam.name : 'Sen';
-  document.getElementById('score-opp-logo').src = match.oppLogo;
-  document.getElementById('score-opp-name').textContent = match.opponent;
-  document.getElementById('input-my').value = '';
-  document.getElementById('input-opp').value = '';
-  var submitBtn = document.getElementById('submit-score-btn');
-  submitBtn.classList.remove('ready');
-  document.getElementById('score-overlay').classList.remove('hidden');
-}
-
-document.getElementById('score-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeScoreModal();
-});
-document.getElementById('score-close').addEventListener('click', closeScoreModal);
-
-function closeScoreModal() {
-  document.getElementById('score-overlay').classList.add('hidden');
-  state.activeMatchId = null;
-}
-
-// Score inputs — enable submit when both filled
-function checkScoreInputs() {
-  var my = document.getElementById('input-my').value;
-  var opp = document.getElementById('input-opp').value;
-  var btn = document.getElementById('submit-score-btn');
-  if (my !== '' && opp !== '') {
-    btn.classList.add('ready');
-  } else {
-    btn.classList.remove('ready');
+// ---- RENDER PROFILE ----
+function renderProfile() {
+  if (state.joined && state.joinedTeam) {
+    document.getElementById('profile-avatar').innerHTML = '<img class="profile-logo" src="' + state.joinedTeam.logo + '" alt="' + state.joinedTeam.name + '">';
+    document.getElementById('profile-name').textContent = getUserName();
+    document.getElementById('profile-name').className = 'profile-name joined';
+    document.getElementById('profile-user').textContent = getUserUsername();
   }
-}
-document.getElementById('input-my').addEventListener('input', checkScoreInputs);
-document.getElementById('input-opp').addEventListener('input', checkScoreInputs);
-
-document.getElementById('submit-score-btn').addEventListener('click', function() {
-  var my = document.getElementById('input-my').value;
-  var opp = document.getElementById('input-opp').value;
-  if (my === '' || opp === '') return;
-
-  var match = state.matches.find(function(m) { return m.id === state.activeMatchId; });
-  if (!match) return;
-
-  match.myScore = parseInt(my);
-  match.oppScore = parseInt(opp);
-  match.status = 'pending_confirm';
-
-  closeScoreModal();
+  updateStats();
   renderMatches();
-});
+}
 
-// ---- UPDATE STATS ----
 function updateStats() {
   var wins = 0, draws = 0, losses = 0;
   state.matches.forEach(function(m) {
-    if (m.status === 'confirmed') {
+    if (m.status === 'confirmed' && m.myScore !== null) {
       if (m.myScore > m.oppScore) wins++;
       else if (m.myScore === m.oppScore) draws++;
       else losses++;
     }
   });
-  document.getElementById('stat-wins').textContent = wins;
-  document.getElementById('stat-draws').textContent = draws;
-  document.getElementById('stat-losses').textContent = losses;
+  var wEl = document.getElementById('stat-wins');
+  var dEl = document.getElementById('stat-draws');
+  var lEl = document.getElementById('stat-losses');
+  wEl.textContent = wins;
+  dEl.textContent = draws;
+  lEl.textContent = losses;
+  wEl.className = 'stat-val' + (wins > 0 ? ' active-stat' : '');
+  dEl.className = 'stat-val' + (draws > 0 ? ' active-stat' : '');
+  lEl.className = 'stat-val' + (losses > 0 ? ' active-stat' : '');
+  document.getElementById('stat-rank').textContent = state.joined ? '1' : '—';
 }
 
-// ---- INIT: render empty matches ----
-renderMatches();
+// ---- STANDINGS (placeholder) ----
+function renderStandings() {
+  var el = document.getElementById('standings-list');
+  if (!state.drawDone || state.players.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>Hali ma\'lumot yo\'q</div>';
+    return;
+  }
+  el.innerHTML = state.players.map(function(p, i) {
+    var t = TEAMS[p.teamIndex];
+    return '<div style="display:flex;align-items:center;gap:8px;background:#0d1225;border-radius:10px;padding:10px 12px;margin-bottom:6px;">' +
+      '<span style="color:#556699;font-size:12px;font-weight:700;width:20px">' + (i+1) + '</span>' +
+      '<img src="' + t.logo + '" style="width:22px;height:22px;object-fit:contain">' +
+      '<span style="font-size:13px;font-weight:700;flex:1">' + p.name + '</span>' +
+      '<span style="font-size:11px;color:#556699">' + t.name + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+// ---- INIT ----
+document.getElementById('profile-name').textContent = getUserName();
+document.getElementById('profile-user').textContent = getUserUsername();
 </script>
 </body>
 </html>
