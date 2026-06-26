@@ -49,6 +49,8 @@
   .profile-card { background: linear-gradient(135deg, #0f1535, #1a2060); border: 1px solid #2a3a80; border-radius: 18px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; }
   .profile-avatar { width: 60px; height: 60px; background: #1a2040; border: 2px dashed #2a3a70; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #334466; flex-shrink: 0; }
   .profile-logo { width: 56px; height: 56px; object-fit: contain; flex-shrink: 0; border-radius: 50%; }
+  .profile-name { font-weight: 800; font-size: 17px; margin-bottom: 4px; }
+  .profile-user { font-size: 13px; color: #556699; }
   .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
   .stat-box { background: #111830; border: 1px solid #1e2a50; border-radius: 12px; padding: 14px 8px; text-align: center; }
   .stat-val { font-size: 20px; font-weight: 900; color: #334466; }
@@ -705,7 +707,7 @@ function generateSchedule() {
 }
 
 function renderDrawResult(schedule) {
-  document.getElementById('draw-spinner-wrap').style.display = 'none';
+document.getElementById('draw-spinner-wrap').style.display = 'none';
   document.getElementById('draw-result-wrap').style.display = 'block';
 
   var list = document.getElementById('draw-pairs-list');
@@ -740,8 +742,34 @@ function renderScheduleCard(schedule) {
 
   var myIndex = (state.joinedTeam) ? state.joinedTeam.index : -1;
 
-  // Qura hali tashlanmagan bolsa, faqat oz jamoasini korsatsin
-    if (!state.drawDone) return { b: 0, g: 0, d: 0, m: 0, gf: 0, ga: 0 };
+  if (!state.drawDone) {
+    list.innerHTML = '<div style="text-align:center;color:#556699;font-size:12px;padding:10px 0">⏳ Jadval qura tashlanganidan keyin ko\'rinadi</div>';
+    return;
+  }
+
+  schedule.forEach(function(match) {
+    if (match.home !== myIndex && match.away !== myIndex) return;
+    var home = TEAMS[match.home];
+    var away = TEAMS[match.away];
+    var item = document.createElement('div');
+    item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e2545';
+    item.innerHTML =
+      '<span style="font-size:10px;color:#556699;font-weight:700;min-width:28px">' + match.round + '-tur</span>' +
+      '<div style="display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end">' +
+        '<span style="font-size:12px;font-weight:700;' + (match.home === myIndex ? 'color:#00d4ff' : '') + '">' + home.name + '</span>' +
+        '<img src="' + home.logo + '" style="width:20px;height:20px;object-fit:contain">' +
+      '</div>' +
+      '<span style="color:#334466;font-weight:700;font-size:13px;padding:0 8px">vs</span>' +
+      '<div style="display:flex;align-items:center;gap:6px;flex:1">' +
+        '<img src="' + away.logo + '" style="width:20px;height:20px;object-fit:contain">' +
+        '<span style="font-size:12px;font-weight:700;' + (match.away === myIndex ? 'color:#00d4ff' : '') + '">' + away.name + '</span>' +
+      '</div>';
+    list.appendChild(item);
+  });
+}
+
+function getPlayerStats(playerIndex) {
+  if (!state.drawDone) return { b: 0, g: 0, d: 0, m: 0, gf: 0, ga: 0 };
 
   var p = state.players[playerIndex];
   if (!p) return { b: 0, g: 0, d: 0, m: 0, gf: 0, ga: 0 };
@@ -749,28 +777,38 @@ function renderScheduleCard(schedule) {
 
   var b = 0, g = 0, d = 0, m = 0, gf = 0, ga = 0;
 
-  // Go through all confirmed matches involving this player's team
-  state.players.forEach(function(otherPlayer) {
-    if (otherPlayer.teamIndex === teamIdx) {
-      // find their matches
-      var playerMatches = [];
-      if (state.joined && state.joinedTeam && state.joinedTeam.index === teamIdx) {
-        playerMatches = state.matches;
+  // Faqat o'z o'yinchisining o'yinlarini hisoblash
+  if (state.joined && state.joinedTeam && state.joinedTeam.index === teamIdx) {
+    state.matches.forEach(function(match) {
+      if (match.status === 'confirmed' && match.myScore !== null && match.oppScore !== null) {
+        b++;
+        gf += match.myScore;
+        ga += match.oppScore;
+        if (match.myScore > match.oppScore) g++;
+        else if (match.myScore === match.oppScore) d++;
+        else m++;
       }
-      playerMatches.forEach(function(match) {
-        if (match.status === 'confirmed' && match.myScore !== null && match.oppScore !== null) {
-          b++;
-          gf += match.myScore;
-          ga += match.oppScore;
-          if (match.myScore > match.oppScore) g++;
-          else if (match.myScore === match.oppScore) d++;
-          else m++;
-        }
-      });
-    }
-  });
+    });
+  }
 
   return { b: b, g: g, d: d, m: m, gf: gf, ga: ga };
+}
+
+function renderProfile() {
+  var nameEl = document.getElementById('profile-name');
+  var userEl = document.getElementById('profile-user');
+  var avatarEl = document.getElementById('profile-avatar');
+
+  if (state.joined && state.joinedTeam) {
+    avatarEl.innerHTML = '<img class="profile-logo" src="' + state.joinedTeam.logo + '" alt="' + state.joinedTeam.name + '">';
+    nameEl.textContent = state.joinedTeam.name;
+    nameEl.className = 'profile-name joined';
+  } else {
+    avatarEl.innerHTML = '👤';
+    nameEl.textContent = getUserName();
+    nameEl.className = 'profile-name';
+  }
+  userEl.textContent = getUserUsername();
 }
 
 function renderStandings() {
@@ -811,7 +849,10 @@ function renderStandings() {
       '<span style="color:#556699;font-size:11px;font-weight:700;text-align:center">' + (i+1) + '</span>' +
       '<div style="display:flex;align-items:center;gap:6px;overflow:hidden">' +
         '<img src="' + t.logo + '" style="width:18px;height:18px;object-fit:contain;flex-shrink:0">' +
-        '<span style="font-size:12px;font-weight:700;' + nameColor + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + t.name + '</span>' +
+        '<div style="display:flex;flex-direction:column;overflow:hidden">' +
+          '<span style="font-size:12px;font-weight:700;' + nameColor + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + t.name + '</span>' +
+          '<span style="font-size:9px;color:#556699;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (row.p.username || '') + '</span>' +
+        '</div>' +
       '</div>' +
       '<span style="font-size:11px;font-weight:700;text-align:center;color:#fff">' + s.b + '</span>' +
       '<span style="font-size:11px;text-align:center;color:#00c97a">' + s.g + '</span>' +
