@@ -558,6 +558,18 @@ function saveState(callback) {
 loadMyState();
 showLoader('Yuklanmoqda...');
 loadSharedState(function(ok) {
+  // Agar joined bo'lsam lekin players ro'yxatida yo'q bo'lsam — reset
+  if (state.joined && state.joinedTeam) {
+    var stillInList = state.players.some(function(p) {
+      return p.teamIndex === state.joinedTeam.index;
+    });
+    if (!stillInList) {
+      state.joined = false;
+      state.joinedTeam = null;
+      state.matches = [];
+      saveMyState();
+    }
+  }
   hideLoader();
   restoreUI();
   renderStandings();
@@ -741,7 +753,7 @@ function triggerDraw() {
           opponent: TEAMS[oppIndex].name,
           oppLogo: TEAMS[oppIndex].logo,
           myScore: null,
-          oppScore: null,
+      oppScore: null,
           status: 'pending_score'
         });
       }
