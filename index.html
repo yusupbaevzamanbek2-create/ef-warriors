@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-// Premier League 2025/26 season teams with official logos
 const TEAMS = [
   { name: "Arsenal", short: "ARS", logo: "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg" },
   { name: "Aston Villa", short: "AVL", logo: "https://upload.wikimedia.org/wikipedia/en/f/f9/Aston_Villa_FC_crest_%282016%29.svg" },
@@ -32,10 +31,6 @@ export default function App() {
   const [joinedTeam, setJoinedTeam] = useState(null);
   const [participants, setParticipants] = useState(0);
 
-  // Matches state
-  // status: "pending_score" | "pending_confirm" | "confirmed"
-  // myScore, oppScore: entered by match creator
-  // confirmed by opponent
   const [matches, setMatches] = useState([
     { id: 1, opponent: "Man City", oppLogo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg", myScore: null, oppScore: null, status: "pending_score" },
     { id: 2, opponent: "Liverpool", oppLogo: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg", myScore: null, oppScore: null, status: "pending_score" },
@@ -69,7 +64,6 @@ export default function App() {
     ));
   }
 
-  // Stats from confirmed matches
   const confirmed = matches.filter(m => m.status === "confirmed");
   const wins = confirmed.filter(m => m.myScore > m.oppScore).length;
   const draws = confirmed.filter(m => m.myScore === m.oppScore).length;
@@ -85,45 +79,43 @@ export default function App() {
     }
   }
 
-  return (
-    <div style={{
-      minHeight: "100vh",
-      background: "#0a0d1a",
-      color: "#fff",
-      fontFamily: "'Segoe UI', sans-serif",
-      maxWidth: 430,
-      margin: "0 auto",
-      display: "flex",
-      flexDirection: "column",
-      position: "relative",
-    }}>
+  const S = {
+    app: { minHeight: "100vh", background: "#0a0d1a", color: "#fff", fontFamily: "'Segoe UI', sans-serif", maxWidth: 430, margin: "0 auto", display: "flex", flexDirection: "column", position: "relative" },
+    header: { padding: "18px 20px 12px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid #1a2040" },
+    logoBox: { width: 36, height: 36, background: "linear-gradient(135deg, #6c63ff, #00d4ff)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 },
+    logoText: { fontWeight: 800, fontSize: 18, letterSpacing: 2, background: "linear-gradient(90deg, #00d4ff, #6c63ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" },
+    langBadge: { background: "#1e2a5e", color: "#00d4ff", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, border: "1px solid #00d4ff44" },
+    content: { flex: 1, overflowY: "auto", paddingBottom: 80 },
+    card: { background: "#13172a", border: "1px solid #1e2545", borderRadius: 16, padding: "18px 16px 16px", marginBottom: 14 },
+    liveTag: { background: "#2a0a0a", color: "#e74c3c", border: "1px solid #e74c3c55", borderRadius: 20, padding: "4px 12px", fontSize: 11, fontWeight: 800, letterSpacing: 1 },
+    progress: { height: 4, background: "#1e2545", borderRadius: 4, marginBottom: 16, overflow: "hidden" },
+    joinBtn: { background: "linear-gradient(90deg, #00c6ff, #7b5cff)", borderRadius: 12, padding: "13px 0", textAlign: "center", fontWeight: 700, fontSize: 15, color: "#fff", cursor: "pointer" },
+    joinedBtn: { background: "#002a18", border: "1px solid #00c97a55", borderRadius: 12, padding: "13px 0", textAlign: "center", fontWeight: 700, fontSize: 15, color: "#00c97a" },
+    nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, background: "#0a0d1a", borderTop: "1px solid #1a2040", display: "flex", justifyContent: "space-around", padding: "12px 0 16px", zIndex: 100 },
+    overlay: { position: "fixed", inset: 0, background: "#000000cc", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 200 },
+    modal: { background: "#0f1530", border: "1px solid #1e2a50", borderRadius: "20px 20px 0 0", padding: "20px 16px 32px", width: "100%", maxWidth: 430, maxHeight: "80vh", overflowY: "auto" },
+  };
 
+  return (
+    <div style={S.app}>
       {/* Header */}
-      <div style={{ padding: "18px 20px 12px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid #1a2040" }}>
-        <div style={{ width: 36, height: 36, background: "linear-gradient(135deg, #6c63ff, #00d4ff)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>⚽</div>
-        <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: 2, background: "linear-gradient(90deg, #00d4ff, #6c63ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>APL BOT</span>
+      <div style={S.header}>
+        <div style={S.logoBox}>⚽</div>
+        <span style={S.logoText}>APL BOT</span>
         <div style={{ marginLeft: "auto" }}>
-          <span style={{ background: "#1e2a5e", color: "#00d4ff", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, border: "1px solid #00d4ff44" }}>UZ</span>
+          <span style={S.langBadge}>UZ</span>
         </div>
       </div>
 
-      {/* Content */}
-      <div style={{ flex: 1, overflowY: "auto", paddingBottom: 80 }}>
-
-        {/* ===== ASOSIY ===== */}
+      <div style={S.content}>
+        {/* ASOSIY */}
         {activeTab === "Asosiy" && (
           <div style={{ padding: "16px 14px" }}>
-
-            {/* APL Card */}
-            <div style={{ background: "#13172a", border: "1px solid #1e2545", borderRadius: 16, padding: "18px 16px 16px", marginBottom: 14 }}>
-
-              {/* Title + status + JOIN button */}
+            <div style={S.card}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                 <div style={{ fontWeight: 800, fontSize: 17 }}>APL — Asosiy Liga</div>
-                <div style={{ background: "#2a0a0a", color: "#e74c3c", border: "1px solid #e74c3c55", borderRadius: 20, padding: "4px 12px", fontSize: 11, fontWeight: 800, letterSpacing: 1 }}>JONLI</div>
+                <div style={S.liveTag}>JONLI</div>
               </div>
-
-              {/* Info row */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", marginBottom: 14 }}>
                 <div>
                   <div style={{ fontSize: 11, color: "#556699", marginBottom: 2 }}>Ishtirokchilar</div>
@@ -134,32 +126,18 @@ export default function App() {
                   <div style={{ fontSize: 15, fontWeight: 700 }}>Liga</div>
                 </div>
               </div>
-
-              {/* Progress */}
-              <div style={{ height: 4, background: "#1e2545", borderRadius: 4, marginBottom: 16, overflow: "hidden" }}>
+              <div style={S.progress}>
                 <div style={{ height: "100%", width: `${(participants / 20) * 100}%`, background: "linear-gradient(90deg, #6c63ff, #00d4ff)", borderRadius: 4 }} />
               </div>
-
-              {/* Join button */}
-              {!joined ? (
-                <div
-                  onClick={() => setShowJoinModal(true)}
-                  style={{ background: "linear-gradient(90deg, #00c6ff, #7b5cff)", borderRadius: 12, padding: "13px 0", textAlign: "center", fontWeight: 700, fontSize: 15, color: "#fff", cursor: "pointer" }}
-                >
-                  + Qo'shilish
-                </div>
-              ) : (
-                <div style={{ background: "#002a18", border: "1px solid #00c97a55", borderRadius: 12, padding: "13px 0", textAlign: "center", fontWeight: 700, fontSize: 15, color: "#00c97a" }}>
-                  ✅ {joinedTeam?.name} bilan qo'shildingiz
-                </div>
-              )}
-
+              {!joined
+                ? <div onClick={() => setShowJoinModal(true)} style={S.joinBtn}>+ Qo'shilish</div>
+                : <div style={S.joinedBtn}>✅ {joinedTeam?.name} bilan qo'shildingiz</div>
+              }
             </div>
-
           </div>
         )}
 
-        {/* ===== REYTING ===== */}
+        {/* REYTING */}
         {activeTab === "Reyting" && (
           <div style={{ padding: "20px 16px" }}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#8899cc", marginBottom: 16 }}>REYTING JADVALI</div>
@@ -178,39 +156,34 @@ export default function App() {
           </div>
         )}
 
-        {/* ===== PROFIL ===== */}
+        {/* PROFIL */}
         {activeTab === "Profil" && (
           <div style={{ padding: "20px 16px" }}>
-
-            {/* Profile card */}
             <div style={{ background: "linear-gradient(135deg, #0f1535, #1a2060)", border: "1px solid #2a3a80", borderRadius: 18, padding: 20, marginBottom: 20, display: "flex", alignItems: "center", gap: 16 }}>
-              {joinedTeam ? (
-                <img src={joinedTeam.logo} alt={joinedTeam.name} style={{ width: 56, height: 56, objectFit: "contain" }} />
-              ) : (
-                <div style={{ width: 60, height: 60, background: "#1a2040", border: "2px dashed #2a3a70", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, color: "#334466" }}>👤</div>
-              )}
+              {joinedTeam
+                ? <img src={joinedTeam.logo} alt={joinedTeam.name} style={{ width: 56, height: 56, objectFit: "contain" }} />
+                : <div style={{ width: 60, height: 60, background: "#1a2040", border: "2px dashed #2a3a70", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, color: "#334466" }}>👤</div>
+              }
               <div>
                 <div style={{ fontWeight: 800, fontSize: 16, color: joinedTeam ? "#fff" : "#334466" }}>{joinedTeam ? joinedTeam.name : "— —"}</div>
                 <div style={{ color: "#556699", fontSize: 13 }}>@username</div>
               </div>
             </div>
 
-            {/* Stats */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 20 }}>
               {[
-                { val: confirmed.length > 0 ? "—" : "—", label: "O'rin" },
+                { val: "—", label: "O'rin" },
                 { val: wins, label: "G'alaba" },
                 { val: draws, label: "Durang" },
                 { val: losses, label: "Mag'lubiyat" },
               ].map(({ val, label }) => (
                 <div key={label} style={{ background: "#111830", border: "1px solid #1e2a50", borderRadius: 12, padding: "14px 8px", textAlign: "center" }}>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: confirmed.length > 0 && label !== "O'rin" ? "#00d4ff" : "#334466" }}>{val}</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: label !== "O'rin" && confirmed.length > 0 ? "#00d4ff" : "#334466" }}>{val}</div>
                   <div style={{ fontSize: 9, color: "#556699", marginTop: 4 }}>{label}</div>
                 </div>
               ))}
             </div>
 
-            {/* Matches */}
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#8899cc", marginBottom: 12 }}>MENING O'YINLARIM</div>
 
             {matches.length === 0 ? (
@@ -218,77 +191,57 @@ export default function App() {
                 <div style={{ fontSize: 36, marginBottom: 12 }}>🎮</div>
                 Hali o'yin yo'q
               </div>
-            ) : (
-              matches.map((match) => (
-                <div key={match.id} style={{ background: "#0f1530", border: "1px solid #1e2a50", borderRadius: 14, padding: "14px 16px", marginBottom: 10 }}>
+            ) : matches.map((match) => (
+              <div key={match.id} style={{ background: "#0f1530", border: "1px solid #1e2a50", borderRadius: 14, padding: "14px 16px", marginBottom: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flex: 1 }}>
+                    {joinedTeam
+                      ? <img src={joinedTeam.logo} alt={joinedTeam.name} style={{ width: 32, height: 32, objectFit: "contain" }} />
+                      : <div style={{ width: 32, height: 32, background: "#1a2040", borderRadius: "50%" }} />
+                    }
+                    <span style={{ fontWeight: 700, fontSize: 11, color: "#aab", textAlign: "center" }}>{joinedTeam?.name || "Sen"}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 10px" }}>
+                    <span style={{ fontWeight: 900, fontSize: 24, color: match.status === "confirmed" ? "#00d4ff" : "#fff", minWidth: 22, textAlign: "center" }}>
+                      {match.myScore !== null ? match.myScore : "—"}
+                    </span>
+                    <span style={{ color: "#334466", fontSize: 18, fontWeight: 700 }}>:</span>
+                    <span style={{ fontWeight: 900, fontSize: 24, color: match.status === "confirmed" ? "#00d4ff" : "#fff", minWidth: 22, textAlign: "center" }}>
+                      {match.oppScore !== null ? match.oppScore : "—"}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flex: 1 }}>
+                    <img src={match.oppLogo} alt={match.opponent} style={{ width: 32, height: 32, objectFit: "contain" }} />
+                    <span style={{ fontWeight: 700, fontSize: 11, color: "#aab", textAlign: "center" }}>{match.opponent}</span>
+                  </div>
+                </div>
 
-                  {/* Teams + score row */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                    {/* My team */}
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flex: 1 }}>
-                      {joinedTeam
-                        ? <img src={joinedTeam.logo} alt={joinedTeam.name} style={{ width: 32, height: 32, objectFit: "contain" }} />
-                        : <div style={{ width: 32, height: 32, background: "#1a2040", borderRadius: "50%" }} />
-                      }
-                      <span style={{ fontWeight: 700, fontSize: 11, color: "#aab", textAlign: "center" }}>{joinedTeam?.name || "Sen"}</span>
+                {match.status === "pending_score" && (
+                  <div onClick={() => openScoreModal(match)} style={{ background: "linear-gradient(90deg, #6c63ff, #00d4ff)", borderRadius: 10, padding: "9px 0", textAlign: "center", fontWeight: 700, fontSize: 13, color: "#fff", cursor: "pointer" }}>
+                    📝 Natija kiritish
+                  </div>
+                )}
+                {match.status === "pending_confirm" && (
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <div style={{ flex: 1, background: "#1a2040", borderRadius: 10, padding: "9px 0", textAlign: "center", fontSize: 12, color: "#f5a623", fontWeight: 700 }}>
+                      ⏳ Raqib tasdiqlashi kutilmoqda
                     </div>
-
-                    {/* Score */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 10px" }}>
-                      <span style={{ fontWeight: 900, fontSize: 24, color: match.status === "confirmed" ? "#00d4ff" : "#fff", minWidth: 22, textAlign: "center" }}>
-                        {match.myScore !== null ? match.myScore : "—"}
-                      </span>
-                      <span style={{ color: "#334466", fontSize: 18, fontWeight: 700 }}>:</span>
-                      <span style={{ fontWeight: 900, fontSize: 24, color: match.status === "confirmed" ? "#00d4ff" : "#fff", minWidth: 22, textAlign: "center" }}>
-                        {match.oppScore !== null ? match.oppScore : "—"}
-                      </span>
-                    </div>
-
-                    {/* Opponent */}
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flex: 1 }}>
-                      <img src={match.oppLogo} alt={match.opponent} style={{ width: 32, height: 32, objectFit: "contain" }} />
-                      <span style={{ fontWeight: 700, fontSize: 11, color: "#aab", textAlign: "center" }}>{match.opponent}</span>
+                    <div onClick={() => confirmMatch(match.id)} style={{ background: "#00c97a22", border: "1px solid #00c97a", borderRadius: 10, padding: "9px 14px", textAlign: "center", fontSize: 12, color: "#00c97a", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+                      ✅ Tasdiqlash
                     </div>
                   </div>
-
-                  {/* Action area */}
-                  {match.status === "pending_score" && (
-                    <div
-                      onClick={() => openScoreModal(match)}
-                      style={{ background: "linear-gradient(90deg, #6c63ff, #00d4ff)", borderRadius: 10, padding: "9px 0", textAlign: "center", fontWeight: 700, fontSize: 13, color: "#fff", cursor: "pointer" }}
-                    >
-                      📝 Natija kiritish
-                    </div>
-                  )}
-
-                  {match.status === "pending_confirm" && (
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <div style={{ flex: 1, background: "#1a2040", borderRadius: 10, padding: "9px 0", textAlign: "center", fontSize: 12, color: "#f5a623", fontWeight: 700 }}>
-                        ⏳ Raqib tasdiqlashi kutilmoqda
-                      </div>
-                      {/* Raqib tasdiqlash tugmasi (demo uchun) */}
-                      <div
-                        onClick={() => confirmMatch(match.id)}
-                        style={{ background: "#00c97a22", border: "1px solid #00c97a", borderRadius: 10, padding: "9px 14px", textAlign: "center", fontSize: 12, color: "#00c97a", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
-                      >
-                        ✅ Tasdiqlash
-                      </div>
-                    </div>
-                  )}
-
-                  {match.status === "confirmed" && (
-                    <div style={{ background: "#002a18", borderRadius: 10, padding: "9px 0", textAlign: "center", fontSize: 12, color: "#00c97a", fontWeight: 700 }}>
-                      ✅ TASDIQLANDI
-                    </div>
-                  )}
-
-                </div>
-              ))
-            )}
+                )}
+                {match.status === "confirmed" && (
+                  <div style={{ background: "#002a18", borderRadius: 10, padding: "9px 0", textAlign: "center", fontSize: 12, color: "#00c97a", fontWeight: 700 }}>
+                    ✅ TASDIQLANDI
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
 
-        {/* ===== SOVRINLAR ===== */}
+        {/* SOVRINLAR */}
         {activeTab === "Sovrinlar" && (
           <div style={{ padding: "20px 16px" }}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#556699", marginBottom: 16 }}>SOVRINLAR</div>
@@ -308,11 +261,10 @@ export default function App() {
             ))}
           </div>
         )}
-
       </div>
 
       {/* Bottom Nav */}
-      <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, background: "#0a0d1a", borderTop: "1px solid #1a2040", display: "flex", justifyContent: "space-around", padding: "12px 0 16px", zIndex: 100 }}>
+      <div style={S.nav}>
         {[
           { name: "Asosiy", icon: "🏠" },
           { name: "Reyting", icon: "🏆" },
@@ -327,26 +279,34 @@ export default function App() {
         ))}
       </div>
 
-      {/* ===== JOIN MODAL ===== */}
+      {/* JOIN MODAL */}
       {showJoinModal && (
-        <div style={{
-          position: "fixed", inset: 0, background: "#000000cc",
-          display: "flex", alignItems: "flex-end", justifyContent: "center",
-          zIndex: 200,
-        }} onClick={(e) => { if (e.target === e.currentTarget) { setShowJoinModal(false); setSelectedTeam(null); } }}>
-          <div style={{
-            background: "#0f1530",
-            border: "1px solid #1e2a50",
-            borderRadius: "20px 20px 0 0",
-            padding: "20px 16px 32px",
-            width: "100%",
-            maxWidth: 430,
-            maxHeight: "80vh",
-            overflowY: "auto",
-          }}>
-            {/* Modal header */}
+        <div style={S.overlay} onClick={(e) => { if (e.target === e.currentTarget) { setShowJoinModal(false); setSelectedTeam(null); } }}>
+          <div style={S.modal}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
               <div style={{ fontWeight: 800, fontSize: 18 }}>Jamoa tanlang</div>
               <div onClick={() => { setShowJoinModal(false); setSelectedTeam(null); }} style={{ fontSize: 20, cursor: "pointer", color: "#556699", padding: "0 4px" }}>✕</div>
             </div>
-            <div sty
+            <div style={{ fontSize: 12, color: "#556699", marginBottom: 16 }}>Premier League 2025/26 jamoalaridan birini tanlang</div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 20 }}>
+              {TEAMS.map((team) => {
+                const isSel = selectedTeam?.name === team.name;
+                return (
+                  <div
+                    key={team.name}
+                    onClick={() => setSelectedTeam(team)}
+                    style={{
+                      background: isSel ? "#1a1060" : "#0d1225",
+                      border: isSel ? "2px solid #6c63ff" : "1px solid #1e2545",
+                      borderRadius: 12,
+                      padding: "10px 6px",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 6,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <img src={team.logo} alt={team.name} style={{ width: 32, height: 32, objectFit: "contain" }} />
+                    <span style={{ fontSize: 9, color: isSel ? "#00d4ff" : "#778899", fontWeight: 700, textAlign: "center", lineHei
