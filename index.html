@@ -183,7 +183,10 @@
   });
 </script>
 
-<div class="header">
+<div id="global-loader" style="display:none;position:fixed;inset:0;background:#0a0d1acc;z-index:500;align-items:center;justify-content:center;flex-direction:column;gap:12px">
+  <div style="width:40px;height:40px;border:3px solid #1e2545;border-top-color:#6c63ff;border-radius:50%;animation:spin 0.7s linear infinite"></div>
+  <div id="loader-msg" style="color:#556699;font-size:13px">Yuklanmoqda...</div>
+</div>
   <div class="logo-box">⚽</div>
   <span class="lang-badge">UZ</span>
 </div>
@@ -451,47 +454,114 @@ var state = {
   players: []  // {name, team} list of all joined players
 };
 
-// ---- SAQLASH / YUKLASH ----
-function saveState() {
+// ---- JSONBIN CONFIG ----
+var JSONBIN_SECRET = '$2a$10$iuenatd1i8qDLQBJh17cBenJYq4qjFaeWz0E.3mAkvCUf8fw1HYLG';
+var JSONBIN_BIN_ID = null; // birinchi saqlashda yaratiladi
+
+// LocalStorage dan bin ID ni olish
+try { JSONBIN_BIN_ID = localStorage.getItem('aplbot_bin_id') || null; } catch(e) {}
+
+function showLoader(msg) {
+  var el = document.getElementById('loader-msg');
+  if (el) el.textContent = msg || '...';
+  var loader = document.getElementById('global-loader');
+  if (loader) loader.style.display = 'flex';
+}
+function hideLoader() {
+  var loader = document.getElementById('global-loader');
+  if (loader) loader.style.display = 'none';
+}
+
+// ---- UMUMIY MA'LUMOTLARNI SAQLASH (JSONBin) ----
+function saveSharedState(callback) {
+  var sharedData = {
+    participants: state.participants,
+    drawDone: state.drawDone,
+    schedule: state.schedule,
+    players: state.players,
+    allMatches: state.allMatches || {}
+  };
+
+  if (JSONBIN_BIN_ID) {
+    // Mavjud bin ni yangilash
+    fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_SECRET },
+      body: JSON.stringify(sharedData)
+    }).then(function(r) { return r.json(); }).then(function() {
+      if (callback) callback();
+    }).catch(function() { if (callback) callback(); });
+  } else {
+    // Yangi bin yaratish
+    fetch('https://api.jsonbin.io/v3/b', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_SECRET, 'X-Bin-Name': 'aplbot' },
+      body: JSON.stringify(sharedData)
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      JSONBIN_BIN_ID = data.metadata.id;
+      try { localStorage.setItem('aplbot_bin_id', JSONBIN_BIN_ID); } catch(e) {}
+      if (callback) callback();
+    }).catch(function() { if (callback) callback(); });
+  }
+}
+
+// ---- UMUMIY MA'LUMOTLARNI YUKLASH ----
+function loadSharedState(callback) {
+  if (!JSONBIN_BIN_ID) { if (callback) callback(false); return; }
+  fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
+    headers: { 'X-Master-Key': JSONBIN_SECRET }
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    var d = data.record;
+    state.participants = d.participants || 0;
+    state.drawDone = d.drawDone || false;
+    state.schedule = d.schedule || [];
+    state.players = d.players || [];
+    state.allMatches = d.allMatches || {};
+    if (callback) callback(true);
+  }).catch(function() { if (callback) callback(false); });
+}
+
+// ---- SHAXSIY MA'LUMOTLARNI SAQLASH (localStorage) ----
+function saveMyState() {
   try {
-    var toSave = {
+    localStorage.setItem('aplbot_me', JSON.stringify({
       joined: state.joined,
       joinedTeam: state.joinedTeam,
-      participants: state.participants,
-      drawDone: state.drawDone,
-      schedule: state.schedule,
-      matches: state.matches,
-      players: state.players
-    };
-    localStorage.setItem('aplbot_state', JSON.stringify(toSave));
+      matches: state.matches
+    }));
   } catch(e) {}
 }
 
-function loadState() {
+function loadMyState() {
   try {
-    var saved = localStorage.getItem('aplbot_state');
+    var saved = localStorage.getItem('aplbot_me');
     if (!saved) return;
     var parsed = JSON.parse(saved);
     state.joined = parsed.joined || false;
     state.joinedTeam = parsed.joinedTeam || null;
-    state.participants = parsed.participants || 0;
-    state.drawDone = parsed.drawDone || false;
-    state.schedule = parsed.schedule || [];
     state.matches = parsed.matches || [];
-    state.players = parsed.players || [];
   } catch(e) {}
 }
 
-// Sahifa ochilganda yuklash
-loadState();
+// ---- BIRLASHTIRILGAN SAQLASH ----
+function saveState(callback) {
+  saveMyState();
+  saveSharedState(callback);
+}
 
-// Yuklangan state asosida UI ni tiklash
-(function restoreUI() {
-  // Ishtirokchilar sonini tiklash
+// ---- SAHIFA OCHILGANDA YUKLASH ----
+loadMyState();
+showLoader('Yuklanmoqda...');
+loadSharedState(function(ok) {
+  hideLoader();
+  restoreUI();
+  renderStandings();
+});
+
+function restoreUI() {
   document.getElementById('participants').textContent = state.participants;
   document.getElementById('progress-fill').style.width = (state.participants / MAX_PLAYERS * 100) + '%';
 
-  // Agar qo'shilgan bo'lsa
   if (state.joined && state.joinedTeam) {
     var team = state.joinedTeam;
     var joinArea = document.getElementById('join-area');
@@ -502,13 +572,12 @@ loadState();
     document.getElementById('profile-user').textContent = getUserUsername();
   }
 
-  // Agar qura tashlanган bo'lsa
   if (state.drawDone && state.schedule.length > 0) {
     renderScheduleCard(state.schedule);
-    renderMatches();
-    updateStats();
+    if (typeof renderMatches === 'function') renderMatches();
+    if (typeof updateStats === 'function') updateStats();
   }
-})();
+}
 
 // ---- TELEGRAM USER ----
 var tgUser = null;
@@ -550,7 +619,13 @@ document.querySelector('.bottom-nav').addEventListener('click', function(e) {
   item.appendChild(dot);
 
   if (tab === 'profil') renderProfile();
-  if (tab === 'reyting') renderStandings();
+  if (tab === 'reyting') {
+    showLoader('Yangilanmoqda...');
+    loadSharedState(function() {
+      hideLoader();
+      renderStandings();
+    });
+  }
 });
 
 // ---- BUILD TEAM GRID ----
@@ -599,34 +674,37 @@ document.getElementById('join-close').addEventListener('click', function() {
 document.getElementById('join-confirm-btn').addEventListener('click', function() {
   if (state.selectedTeamIndex < 0) return;
   var team = TEAMS[state.selectedTeamIndex];
+
+  var alreadyTaken = state.players.some(function(p) { return p.teamIndex === state.selectedTeamIndex; });
+  if (alreadyTaken) { alert('Bu jamoa allaqachon band!'); return; }
+
   state.joined = true;
   state.joinedTeam = { index: state.selectedTeamIndex, name: team.name, logo: team.logo };
   state.participants++;
   state.players.push({ name: getUserName(), username: getUserUsername(), teamIndex: state.selectedTeamIndex });
 
-  // Update UI
   document.getElementById('participants').textContent = state.participants;
   document.getElementById('progress-fill').style.width = (state.participants / MAX_PLAYERS * 100) + '%';
 
-  // Replace join button
   var joinArea = document.getElementById('join-area');
   joinArea.innerHTML = '<div class="joined-btn">✅ ' + team.name + ' — Qo\'shildingiz</div>';
 
-  // Update profile card
   document.getElementById('profile-avatar').innerHTML = '<img class="profile-logo" src="' + team.logo + '" alt="' + team.name + '">';
   document.getElementById('profile-name').textContent = team.name;
   document.getElementById('profile-name').className = 'profile-name joined';
   document.getElementById('profile-user').textContent = getUserUsername();
 
   document.getElementById('join-overlay').classList.add('hidden');
-  renderScheduleCard([]);
-  renderStandings();
-  saveState();
 
-  // If 20 players, trigger draw
-  if (state.participants >= MAX_PLAYERS) {
-    setTimeout(triggerDraw, 500);
-  }
+  showLoader('Saqlanmoqda...');
+  saveState(function() {
+    hideLoader();
+    renderScheduleCard([]);
+    renderStandings();
+    if (state.participants >= MAX_PLAYERS) {
+      setTimeout(triggerDraw, 500);
+    }
+  });
 });
 
 // ---- DRAW LOGIC ----
@@ -707,7 +785,7 @@ function generateSchedule() {
 }
 
 function renderDrawResult(schedule) {
-document.getElementById('draw-spinner-wrap').style.display = 'none';
+  document.getElementById('draw-spinner-wrap').style.display = 'none';
   document.getElementById('draw-result-wrap').style.display = 'block';
 
   var list = document.getElementById('draw-pairs-list');
