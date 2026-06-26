@@ -301,7 +301,7 @@ var TEAMS = [
   { name: "Liverpool", logo: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" },
   { name: "Man City", logo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg" },
   { name: "Man United", logo: "https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg" },
-  { name: "Newcastle", logo: "https://upload.wikimedia.org/wikipedia/en/5/56/Newcastle_United_Logo.svg" },
+   { name: "Newcastle", logo: "https://upload.wikimedia.org/wikipedia/en/5/56/Newcastle_United_Logo.svg" },
   { name: "Nottm Forest", logo: "https://upload.wikimedia.org/wikipedia/en/e/e5/Nottingham_Forest_F.C._logo.svg" },
   { name: "Southampton", logo: "https://upload.wikimedia.org/wikipedia/en/c/c9/FC_Southampton.svg" },
   { name: "Tottenham", logo: "https://upload.wikimedia.org/wikipedia/en/b/b4/Tottenham_Hotspur.svg" },
@@ -491,6 +491,7 @@ document.getElementById('join-confirm-btn').addEventListener('click', function()
   document.getElementById('profile-user').textContent = getUserUsername();
 
   document.getElementById('join-overlay').classList.add('hidden');
+  renderScheduleCard([]);
   saveState();
 
   // If 20 players, trigger draw
@@ -610,6 +611,27 @@ function renderScheduleCard(schedule) {
   var list = document.getElementById('schedule-list');
   list.innerHTML = '';
 
+  var myIndex = (state.joinedTeam) ? state.joinedTeam.index : -1;
+
+  // Qura hali tashlanmagan bolsa, faqat oz jamoasini korsatsin
+  if (!state.drawDone || !schedule || schedule.length === 0) {
+    if (state.joined && state.joinedTeam) {
+      var myTeam = state.joinedTeam;
+      var infoDiv = document.createElement('div');
+      infoDiv.style.cssText = 'display:flex;align-items:center;gap:10px;background:#1a1060;border:1px solid #6c63ff55;border-radius:12px;padding:12px 14px;margin-bottom:10px;';
+      infoDiv.innerHTML = '<img src="' + myTeam.logo + '" style="width:28px;height:28px;object-fit:contain">' +
+        '<div><div style="font-size:13px;font-weight:800;color:#00d4ff">' + myTeam.name + '</div>' +
+        '<div style="font-size:11px;color:#556699;margin-top:2px">Sizning jamoangiz</div></div>' +
+        '<div style="margin-left:auto;font-size:11px;color:#556699">' + state.participants + '/20</div>';
+      list.appendChild(infoDiv);
+      var waitDiv = document.createElement('div');
+      waitDiv.style.cssText = 'text-align:center;color:#556699;font-size:12px;padding:10px 0;';
+      waitDiv.textContent = "Qura " + (20 - state.participants) + " ta o'yinchi qolganda tashlanadi";
+      list.appendChild(waitDiv);
+    }
+    return;
+  }
+
   var currentRound = 0;
   schedule.forEach(function(match) {
     if (match.round !== currentRound) {
@@ -621,12 +643,16 @@ function renderScheduleCard(schedule) {
     }
     var home = TEAMS[match.home];
     var away = TEAMS[match.away];
+    var isMyMatch = (match.home === myIndex || match.away === myIndex);
     var row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#0d1225;border-radius:10px;padding:8px 12px;margin-bottom:6px;font-size:12px;font-weight:700;';
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;border-radius:10px;padding:8px 12px;margin-bottom:6px;font-size:12px;font-weight:700;' +
+      (isMyMatch ? 'background:#1a1060;border:1px solid #6c63ff55;' : 'background:#0d1225;');
+    var homeName = '<span' + (match.home === myIndex ? ' style="color:#00d4ff"' : '') + '>' + home.name + '</span>';
+    var awayName = '<span' + (match.away === myIndex ? ' style="color:#00d4ff"' : '') + '>' + away.name + '</span>';
     row.innerHTML =
-      '<div style="display:flex;align-items:center;gap:6px;flex:1"><img src="' + home.logo + '" style="width:18px;height:18px;object-fit:contain"><span>' + home.name + '</span></div>' +
+      '<div style="display:flex;align-items:center;gap:6px;flex:1"><img src="' + home.logo + '" style="width:18px;height:18px;object-fit:contain">' + homeName + '</div>' +
       '<span style="color:#334466;font-size:10px;padding:0 8px">vs</span>' +
-      '<div style="display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end"><span>' + away.name + '</span><img src="' + away.logo + '" style="width:18px;height:18px;object-fit:contain"></div>';
+      '<div style="display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end">' + awayName + '<img src="' + away.logo + '" style="width:18px;height:18px;object-fit:contain"></div>';
     list.appendChild(row);
   });
 }
@@ -789,16 +815,7 @@ function renderProfile() {
   }
   updateStats();
   renderMatches();
-}
-
-function updateStats() {
-  var wins = 0, draws = 0, losses = 0;
-  state.matches.forEach(function(m) {
-    if (m.status === 'confirmed' && m.myScore !== null) {
-      if (m.myScore > m.oppScore) wins++;
-      else if (m.myScore === m.oppScore) draws++;
-      else losses++;
-    }
+      }
   });
   var wEl = document.getElementById('stat-wins');
   var dEl = document.getElementById('stat-draws');
