@@ -1,106 +1,335 @@
-import telebot
-from telebot import types
-import os
-from flask import Flask, request
+       <span class="t-info-key">Ishtirokchilar</span>
+        <span class="t-info-val">4 / 16</span>
+      </div>
+      <div class="t-info-item">
+        <span class="t-info-key">Boshlanishi</span>
+        <span class="t-info-val">1 Iyul</span>
+      </div>
+      <div class="t-info-item">
+        <span class="t-info-key">Format</span>
+        <span class="t-info-val">Play-off</span>
+      </div>
+      <div class="t-info-item">
+        <span class="t-info-key">Sovrin</span>
+        <span class="t-info-val">200 000 so'm</span>
+      </div>
+    </div>
+    <div class="t-progress-bar">
+      <div class="t-progress-fill" style="width: 25%"></div>
+    </div>
+    <button class="t-btn">Yozilish →</button>
+  </div>
 
-TOKEN = "8950414020:AAGIA0C4-dhmn0r0mGmmFP_hSQM31RusNn4"
-CHANNEL = "@eFWarriors"
+  <div class="tournament-card">
+    <div class="t-header">
+      <div class="t-name">APL Super Kubogi</div>
+      <div class="t-badge soon">TEZDA</div>
+    </div>
+    <div class="t-info">
+      <div class="t-info-item">
+        <span class="t-info-key">Ishtirokchilar</span>
+        <span class="t-info-val">0 / 8</span>
+      </div>
+      <div class="t-info-item">
+        <span class="t-info-key">Boshlanishi</span>
+        <span class="t-info-val">15 Iyul</span>
+      </div>
+      <div class="t-info-item">
+        <span class="t-info-key">Format</span>
+        <span class="t-info-val">Knock-out</span>
+      </div>
+      <div class="t-info-item">
+        <span class="t-info-key">Sovrin</span>
+        <span class="t-info-val">300 000 so'm</span>
+      </div>
+    </div>
+    <div class="t-progress-bar">
+      <div class="t-progress-fill" style="width: 0%"></div>
+    </div>
+    <button class="t-btn">Batafsil →</button>
+  </div>
+</div>
 
-bot = telebot.TeleBot(TOKEN)
-app = Flask(__name__)
+<!-- REYTING -->
+<div class="page" id="page-reyting">
+  <div class="league-tabs">
+    <div class="league-tab active">APL Liga</div>
+    <div class="league-tab">APL Kubogi</div>
+    <div class="league-tab">To'p uruvchilar</div>
+  </div>
 
-users_lang = {}
+  <div class="table-header">
+    <div>#</div>
+    <div>O'yinchi</div>
+    <div>B</div>
+    <div>G</div>
+    <div>D</div>
+    <div>M</div>
+    <div>GF</div>
+    <div>GA</div>
+    <div>Ball</div>
+  </div>
 
-def check_subscription(user_id):
-    try:
-        member = bot.get_chat_member(CHANNEL, user_id)
-        return member.status in ["member", "administrator", "creator"]
-    except:
-        return False
+  <div class="table-row">
+    <div class="row-rank gold">1</div>
+    <div class="row-player">
+      <span class="row-club">Manchester City</span>
+      <span class="row-username">@aziz_pro</span>
+    </div>
+    <div class="row-num">6</div>
+    <div class="row-num">5</div>
+    <div class="row-num">0</div>
+    <div class="row-num">1</div>
+    <div class="row-num">18</div>
+    <div class="row-num">4</div>
+    <div class="row-pts">15</div>
+  </div>
 
-def send_webapp(chat_id, lang):
-    messages = {
-        "uz": "Xush kelibsiz! eF Warriors ga kiring:",
-        "ru": "Добро пожаловать! Войдите в eF Warriors:",
-        "en": "Welcome! Enter eF Warriors:"
+  <div class="table-row">
+    <div class="row-rank silver">2</div>
+    <div class="row-player">
+      <span class="row-club">Arsenal</span>
+      <span class="row-username">@bekzod_fc</span>
+    </div>
+    <div class="row-num">6</div>
+    <div class="row-num">4</div>
+    <div class="row-num">1</div>
+    <div class="row-num">1</div>
+    <div class="row-num">14</div>
+    <div class="row-num">6</div>
+    <div class="row-pts">13</div>
+  </div>
+
+  <div class="table-row">
+    <div class="row-rank bronze">3</div>
+    <div class="row-player">
+      <span class="row-club">Liverpool</span>
+      <span class="row-username">@urmonov_e</span>
+    </div>
+    <div class="row-num">6</div>
+    <div class="row-num">4</div>
+    <div class="row-num">0</div>
+    <div class="row-num">2</div>
+    <div class="row-num">12</div>
+    <div class="row-num">8</div>
+    <div class="row-pts">12</div>
+  </div>
+
+  <div class="table-row">
+    <div class="row-rank">4</div>
+    <div class="row-player">
+      <span class="row-club">Chelsea</span>
+      <span class="row-username">@sardor_uz</span>
+    </div>
+    <div class="row-num">6</div>
+    <div class="row-num">3</div>
+    <div class="row-num">2</div>
+    <div class="row-num">1</div>
+    <div class="row-num">11</div>
+    <div class="row-num">7</div>
+    <div class="row-pts">11</div>
+  </div>
+
+  <div class="table-row">
+    <div class="row-rank">5</div>
+    <div class="row-player">
+      <span class="row-club">Tottenham</span>
+      <span class="row-username">@jasur_goal</span>
+    </div>
+    <div class="row-num">6</div>
+    <div class="row-num">3</div>
+    <div class="row-num">1</div>
+    <div class="row-num">2</div>
+    <div class="row-num">10</div>
+    <div class="row-num">9</div>
+    <div class="row-pts">10</div>
+  </div>
+
+  <div class="table-row">
+    <div class="row-rank">6</div>
+    <div class="row-player">
+      <span class="row-club">Man United</span>
+      <span class="row-username">@timur_11</span>
+    </div>
+    <div class="row-num">6</div>
+    <div class="row-num">2</div>
+    <div class="row-num">2</div>
+    <div class="row-num">2</div>
+    <div class="row-num">9</div>
+    <div class="row-num">10</div>
+    <div class="row-pts">8</div>
+  </div>
+</div>
+
+<!-- PROFIL -->
+<div class="page" id="page-profil">
+  <div class="profile-card">
+    <div class="profile-avatar">⚽</div>
+    <div class="profile-info">
+      <div class="profile-name" id="profile-name">O'yinchi</div>
+      <div class="profile-club">
+        <span class="profile-club-name">Celta Vigo</span>
+      </div>
+      <div class="profile-tag" id="profile-tag">@username</div>
+    </div>
+  </div>
+
+  <div class="section-label">Statistika</div>
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="stat-box-val">#3</div>
+      <div class="stat-box-label">O'rin</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-val">4</div>
+      <div class="stat-box-label">G'alaba</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-val">1</div>
+      <div class="stat-box-label">Durang</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-val">1</div>
+      <div class="stat-box-label">Mag'lub</div>
+    </div>
+  </div>
+
+  <div class="section-label">So'nggi o'yinlar</div>
+  <div class="matches-list">
+    <div class="match-row">
+      <div class="match-id">#1147</div>
+      <div class="match-teams">
+        <span class="match-team">Mallorca</span>
+        <span class="match-score">2:3</span>
+        <span class="match-team">Celta</span>
+      </div>
+      <div class="match-status confirmed">TASDIQLANDI</div>
+    </div>
+    <div class="match-row">
+      <div class="match-id">#1156</div>
+      <div class="match-teams">
+        <span class="match-team">Sevilla</span>
+        <span class="match-score">0:3</span>
+        <span class="match-team">Celta</span>
+      </div>
+      <div class="match-status confirmed">TASDIQLANDI</div>
+    </div>
+    <div class="match-row">
+      <div class="match-id">#1165</div>
+      <div class="match-teams">
+        <span class="match-team">Atletico</span>
+        <span class="match-score">1:1</span>
+        <span class="match-team">Celta</span>
+      </div>
+      <div class="match-status confirmed">TASDIQLANDI</div>
+    </div>
+    <div class="match-row">
+      <div class="match-id">#1201</div>
+      <div class="match-teams">
+        <span class="match-team">Barcelona</span>
+        <span class="match-score">—:—</span>
+        <span class="match-team">Celta</span>
+      </div>
+      <div class="match-status pending">KUTILMOQDA</div>
+    </div>
+  </div>
+</div>
+
+<!-- SOVRINLAR -->
+<div class="page" id="page-sovrinlar">
+  <div class="section-label">Mavsumning eng yaxshilari</div>
+
+  <div class="award-card">
+    <div class="award-icon gold">🥇</div>
+    <div class="award-info">
+      <div class="award-title">Oltin Butsa</div>
+      <div class="award-desc">Eng ko'p gol urgan o'yinchi</div>
+      <div class="award-winner">@urmonov_e — 30 gol</div>
+      <div class="award-club">Liverpool</div>
+    </div>
+  </div>
+
+  <div class="award-card">
+    <div class="award-icon gold">🏆</div>
+    <div class="award-info">
+      <div class="award-title">Oltin To'p</div>
+      <div class="award-desc">Turnir g'olibi</div>
+      <div class="award-winner">@urmonov_e</div>
+      <div class="award-club">Liverpool</div>
+    </div>
+  </div>
+
+  <div class="award-card">
+    <div class="award-icon silver">🥈</div>
+    <div class="award-info">
+      <div class="award-title">APL Kubogi</div>
+      <div class="award-desc">Kubik chempioni</div>
+      <div class="award-winner">@Aziz_00001</div>
+      <div class="award-club">Paris SG</div>
+    </div>
+  </div>
+
+  <div class="award-card">
+    <div class="award-icon cyan">🧤</div>
+    <div class="award-info">
+      <div class="award-title">Oltin Qo'lqop</div>
+      <div class="award-desc">Eng kam gol yegan</div>
+      <div class="award-winner">@bekzod_fc</div>
+      <div class="award-club">Arsenal — 4 gol</div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showPage('home', this)">
+    <span class="tab-icon">🏠</span>
+    <span class="tab-label">Asosiy</span>
+  </button>
+  <button class="tab" onclick="showPage('reyting', this)">
+    <span class="tab-icon">🏆</span>
+    <span class="tab-label">Reyting</span>
+  </button>
+  <button class="tab" onclick="showPage('profil', this)">
+    <span class="tab-icon">👤</span>
+    <span class="tab-label">Profil</span>
+  </button>
+  <button class="tab" onclick="showPage('sovrinlar', this)">
+    <span class="tab-icon">🎖️</span>
+    <span class="tab-label">Sovrinlar</span>
+  </button>
+</div>
+
+<script>
+  // Telegram WebApp
+  if (window.Telegram && window.Telegram.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+    const user = Telegram.WebApp.initDataUnsafe?.user;
+    if (user) {
+      const name = user.first_name || 'O\'yinchi';
+      const username = user.username ? '@' + user.username : '';
+      document.getElementById('tg-name').textContent = name;
+      document.getElementById('profile-name').textContent = name;
+      if (username) document.getElementById('profile-tag').textContent = username;
     }
-    inline = types.InlineKeyboardMarkup()
-    inline.add(types.InlineKeyboardButton(
-        "🏆 eF Warriors App",
-        web_app=types.WebAppInfo(
-            url="https://yusupbaevzamanbek2-create.github.io/ef-warriors/"
-        )
-    ))
-    bot.send_message(chat_id, messages[lang], reply_markup=inline)
+  }
 
-def send_subscribe(chat_id, lang):
-    messages = {
-        "uz": "Botdan foydalanish uchun kanalga obuna bo'ling:",
-        "ru": "Подпишитесь на канал чтобы пользоваться ботом:",
-        "en": "Subscribe to our channel to use the bot:"
-    }
-    inline = types.InlineKeyboardMarkup()
-    inline.add(types.InlineKeyboardButton(
-        "📢 Kanalga obuna bo'lish",
-        url="https://t.me/eFWarriors"
-    ))
-    inline.add(types.InlineKeyboardButton(
-        "✅ Tekshirish",
-        callback_data="check_sub"
-    ))
-    bot.send_message(chat_id, messages[lang], reply_markup=inline)
+  function showPage(id, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
 
-@bot.message_handler(commands=["start"])
-def start(message):
-    inline = types.InlineKeyboardMarkup()
-    inline.add(
-        types.InlineKeyboardButton("🇺🇿 O'zbekcha", callback_data="uz"),
-        types.InlineKeyboardButton("🇷🇺 Русский", callback_data="ru"),
-        types.InlineKeyboardButton("🇬🇧 English", callback_data="en")
-    )
-    bot.send_message(
-        message.chat.id,
-        "Salom! 👋\n\nTilni tanlang / Выберите язык / Choose language:",
-        reply_markup=inline
-    )
-
-@bot.callback_query_handler(func=lambda call: call.data in ["uz", "ru", "en"])
-def language(call):
-    users_lang[call.from_user.id] = call.data
-    if check_subscription(call.from_user.id):
-        send_webapp(call.message.chat.id, call.data)
-    else:
-        send_subscribe(call.message.chat.id, call.data)
-
-@bot.callback_query_handler(func=lambda call: call.data == "check_sub")
-def check_sub(call):
-    lang = users_lang.get(call.from_user.id, "uz")
-    if check_subscription(call.from_user.id):
-        bot.answer_callback_query(call.id, "✅ Rahmat!")
-        send_webapp(call.message.chat.id, lang)
-    else:
-        messages = {
-            "uz": "Hali obuna bo'lmadingiz!",
-            "ru": "Вы ещё не подписались!",
-            "en": "You are not subscribed yet!"
-        }
-        bot.answer_callback_query(call.id, messages[lang])
-
-@app.route("/" + TOKEN, methods=["POST"])
-def webhook():
-    update = telebot.types.Update.de_json(
-        request.stream.read().decode("utf-8")
-    )
-    bot.process_new_updates([update])
-    return "OK", 200
-
-@app.route("/")
-def index():
-    return "eF Warriors ishlayapti!", 200
-
-if __name__ == "__main__":
-    bot.remove_webhook()
-    bot.set_webhook(
-        url="https://ef-warriors.onrender.com/" + TOKEN
-    )
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+  // League tabs
+  document.querySelectorAll('.league-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.league-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
+```
