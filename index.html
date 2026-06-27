@@ -1224,7 +1224,7 @@ function renderAdminTab() {
             '<img src="' + t.logo + '" style="width:28px;height:28px;object-fit:contain">' +
             '<div>' +
               '<div style="font-size:13px;font-weight:700">' + t.name + '</div>' +
-              '<div style="font-size:11px;color:#556699">' + (p.username || p.name) + '</div>' +
+              (p.username ? '<a href="https://t.me/' + p.username.replace('@','') + '" target="_blank" style="font-size:11px;color:#00d4ff;text-decoration:none">' + p.username + '</a>' : '<div style="font-size:11px;color:#556699">' + (p.name || '') + '</div>')
             '</div>' +
           '</div>' +
           '<button onclick="adminRemovePlayer(' + i + ')" style="background:#2a0a0a;border:1px solid #e74c3c55;border-radius:8px;padding:5px 10px;color:#e74c3c;font-size:11px;font-weight:700;cursor:pointer">O\'chirish</button>' +
