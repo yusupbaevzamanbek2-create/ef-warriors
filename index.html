@@ -217,7 +217,7 @@
 
 
     <!-- QOIDALAR -->
-   <div class="card" id="qoidalar-card">
+    <div class="card" id="qoidalar-card">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
         <span style="font-size:20px">📋</span>
         <span style="font-weight:800;font-size:16px">Qoidalar</span>
@@ -252,7 +252,7 @@
       </div>
     </div>
   </div>
-    
+
   <!-- REYTING -->
   <div class="tab" id="tab-reyting">
     <div style="padding:4px 2px">
@@ -291,7 +291,6 @@
     <div class="section-title">MENING O'YINLARIM</div>
     <div id="matches-list"></div>
   </div>
-  
 
   <!-- SOVRINLAR -->
   <div class="tab" id="tab-sovrinlar">
@@ -501,7 +500,9 @@ function saveSharedState(callback) {
     drawDone: state.drawDone,
     schedule: state.schedule,
     players: state.players,
-    allMatches: state.allMatches || {}
+    allMatches: state.allMatches || {},
+    openedRounds: state.openedRounds || [],
+    currentRounds: state.currentRounds || []
   };
 
   fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
@@ -828,6 +829,16 @@ function triggerDraw() {
 
     renderDrawResult(schedule);
     renderScheduleCard(schedule);
+
+    // Qura tashlanganida darhol 1 va 2-turni och
+    var allRounds = [];
+    schedule.forEach(function(m) {
+      if (allRounds.indexOf(m.round) === -1) allRounds.push(m.round);
+    });
+    allRounds.sort(function(a,b){return a-b;});
+    state.openedRounds = allRounds.slice(0, 2);
+    state.currentRounds = allRounds.slice(0, 2);
+
     saveState();
   }, 2000);
 }
@@ -1215,7 +1226,7 @@ function renderAdminTab() {
             '</div>' +
           '</div>' +
           '<button onclick="adminRemovePlayer(' + i + ')" style="background:#2a0a0a;border:1px solid #e74c3c55;border-radius:8px;padding:5px 10px;color:#e74c3c;font-size:11px;font-weight:700;cursor:pointer">O\'chirish</button>' +
-        '</div>';
+        '<div>';
       }).join('');
     }
 
