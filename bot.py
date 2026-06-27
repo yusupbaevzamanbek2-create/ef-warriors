@@ -141,6 +141,7 @@ def send_webapp(chat_id, first_name):
     bot.send_message(
         chat_id,
         f"👋 Salom, <b>{first_name}</b>!\n\n"
+        f"⚽ <b>eF Warriors</b> ga xush kelibsiz!\n\n"
         f"📲 Quyidagi tugmani bosib botga kiring:",
         parse_mode='HTML',
         reply_markup=markup
