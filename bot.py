@@ -210,14 +210,16 @@ def job_midnight():
                     f"⚽ <b>{match['round']}-tur boshlandi!</b>\n\n"
                     f"🏠 <b>{get_team_name(match['home'])}</b> vs {get_team_name(match['away'])}\n"
                     f"👤 Raqib: {away_user}\n\n"
-                    f"⏰ Deadline: <b>23:59</b>\n📲 APL botda natijani kiriting!"
+                    f"⏰ Deadline: <b>23:59</b>\n📲 APL botda natijani kiriting!\n\n"
+                    f"⚠️ <b>Eslatma:</b> Smart Assist ishlatish <b>man etilgan!</b>"
                 )
             if away_p and away_p.get('username'):
                 send_msg('@' + away_p['username'].replace('@', ''),
                     f"⚽ <b>{match['round']}-tur boshlandi!</b>\n\n"
                     f"{get_team_name(match['home'])} vs <b>{get_team_name(match['away'])}</b>\n"
                     f"👤 Raqib: {home_user}\n\n"
-                    f"⏰ Deadline: <b>23:59</b>\n📲 APL botda natijani kiriting!"
+                    f"⏰ Deadline: <b>23:59</b>\n📲 APL botda natijani kiriting!\n\n"
+                    f"⚠️ <b>Eslatma:</b> Smart Assist ishlatish <b>man etilgan!</b>"
                 )
 
         log.info(f'{rounds_text}-turlar ochildi.')
@@ -289,4 +291,3 @@ if __name__ == '__main__':
     log.info('✅ eF Warriors bot ishga tushdi!')
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
-        
