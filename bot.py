@@ -74,16 +74,76 @@ def get_team_name(index):
 # ---- /start HANDLER ----
 @bot.message_handler(commands=['start'])
 def start(message):
+    try:
+        markup = telebot.types.InlineKeyboardMarkup()
+        markup.add(
+            telebot.types.InlineKeyboardButton('🇺🇿 O\'zbekcha', callback_data='lang_uz'),
+            telebot.types.InlineKeyboardButton('🇷🇺 Русский', callback_data='lang_ru')
+        )
+        bot.send_message(
+            message.chat.id,
+            "👋 Salom! Tilni tanlang / Выберите язык:",
+            reply_markup=markup
+        )
+    except Exception as e:
+        log.error(f'/start xato: {e}')
+
+@bot.callback_query_handler(func=lambda c: c.data in ['lang_uz', 'lang_ru'])
+def lang_chosen(call):
+    try:
+        bot.answer_callback_query(call.id)
+        # Kanalga obuna tekshirish
+        try:
+            member = bot.get_chat_member('@eFWarriors', call.from_user.id)
+            is_member = member.status in ['member', 'administrator', 'creator']
+        except:
+            is_member = False
+
+        if not is_member:
+            markup = telebot.types.InlineKeyboardMarkup()
+            markup.add(telebot.types.InlineKeyboardButton('📢 Kanalga o\'tish', url='https://t.me/eFWarriors'))
+            markup.add(telebot.types.InlineKeyboardButton('✅ Obuna bo\'ldim', callback_data='check_sub_' + call.data))
+            bot.send_message(
+                call.message.chat.id,
+                "⚠️ Botdan foydalanish uchun avval kanalga obuna bo'ling!\n\n📢 @eFWarriors",
+                reply_markup=markup
+            )
+            return
+
+        send_webapp(call.message.chat.id, call.from_user.first_name)
+    except Exception as e:
+        log.error(f'lang_chosen xato: {e}')
+
+@bot.callback_query_handler(func=lambda c: c.data.startswith('check_sub_'))
+def check_sub(call):
+    try:
+        bot.answer_callback_query(call.id)
+        try:
+            member = bot.get_chat_member('@eFWarriors', call.from_user.id)
+            is_member = member.status in ['member', 'administrator', 'creator']
+        except:
+            is_member = False
+
+        if not is_member:
+            bot.answer_callback_query(call.id, "❌ Siz hali obuna bo'lmadingiz!", show_alert=True)
+            return
+
+        send_webapp(call.message.chat.id, call.from_user.first_name)
+    except Exception as e:
+        log.error(f'check_sub xato: {e}')
+
+def send_webapp(chat_id, first_name):
     markup = telebot.types.InlineKeyboardMarkup()
     markup.add(telebot.types.InlineKeyboardButton(
-        '⚽ APL Botni ochish',
+        '🏆 eF Warriors',
         web_app=telebot.types.WebAppInfo(url=WEB_APP_URL)
     ))
-    send_msg(message.chat.id,
-        f"👋 Salom, <b>{message.from_user.first_name}</b>!\n\n"
-        f"⚽ <b>eF Warriors — APL Liga</b> ga xush kelibsiz!\n\n"
+    bot.send_message(
+        chat_id,
+        f"👋 Salom, <b>{first_name}</b>!\n\n"
         f"📲 Quyidagi tugmani bosib botga kiring:",
-        markup=markup
+        parse_mode='HTML',
+        reply_markup=markup
     )
 
 # ---- CRON: 00:00 ----
@@ -210,7 +270,12 @@ if __name__ == '__main__':
 
     # Bot polling alohida threadda
     def run_bot():
-        log.info('Bot polling boshlandi...')
+        log.info('Webhook o\'chirilmoqda...')
+        try:
+            bot.delete_webhook()
+            log.info('Webhook o\'chirildi. Polling boshlanyapti...')
+        except Exception as e:
+            log.error(f'deleteWebhook xato: {e}')
         bot.infinity_polling(timeout=30, long_polling_timeout=20)
 
     Thread(target=run_bot, daemon=True).start()
@@ -223,4 +288,4 @@ if __name__ == '__main__':
     log.info('✅ eF Warriors bot ishga tushdi!')
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
-                     
+        
