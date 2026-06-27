@@ -312,28 +312,28 @@
   </div>
 
   <!-- ADMIN -->
-  <div class="tab" id="tab-admin">
+ <div class="tab" id="tab-admin">
     <div style="padding:4px 2px">
       <div class="section-title">⚙️ ADMIN PANEL</div>
       <div class="card">
         <div style="font-weight:800;font-size:15px;margin-bottom:14px">👥 O'yinchilar (<span id="admin-count">0</span>)</div>
-        <div id="admin-players-list"></div>
+        <div id="admin-players-list" style="display:flex;flex-direction:column;gap:0"></div>
       </div>
       <div class="card">
         <div style="font-weight:800;font-size:15px;margin-bottom:14px">📅 Barcha o'yinlar</div>
-        <div id="admin-schedule"></div>
+        <div id="admin-schedule" style="display:flex;flex-direction:column;gap:0"></div>
       </div>
       <div class="card">
         <div style="font-weight:800;font-size:15px;margin-bottom:14px">🛠 Amallar</div>
         <div style="display:flex;flex-direction:column;gap:10px">
-          <button onclick="adminTriggerDraw()" style="background:linear-gradient(90deg,#6c63ff,#00d4ff);border:none;border-radius:12px;padding:13px;color:#fff;font-weight:700;font-size:14px;cursor:pointer">🎯 Qura Tashlash</button>
-          <button onclick="adminReset()" style="background:#2a0a0a;border:1px solid #e74c3c55;border-radius:12px;padding:13px;color:#e74c3c;font-weight:700;font-size:14px;cursor:pointer">🗑 Hammasini Tozalash (Reset)</button>
+          <button onclick="adminTriggerDraw()" style="background:linear-gradient(90deg,#6c63ff,#00d4ff);border:none;border-radius:12px;padding:13px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;width:100%">🎯 Qura Tashlash</button>
+          <button onclick="adminReset()" style="background:#2a0a0a;border:1px solid #e74c3c55;border-radius:12px;padding:13px;color:#e74c3c;font-weight:700;font-size:14px;cursor:pointer;width:100%">🗑 Hammasini Tozalash (Reset)</button>
         </div>
       </div>
     </div>
   </div>
 </div>
-
+  
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <div class="nav-item active" data-tab="asosiy">
