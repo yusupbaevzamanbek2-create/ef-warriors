@@ -319,6 +319,10 @@
         <div id="admin-players-list"></div>
       </div>
       <div class="card">
+        <div style="font-weight:800;font-size:15px;margin-bottom:14px">📅 Barcha o'yinlar</div>
+        <div id="admin-schedule"></div>
+      </div>
+      <div class="card">
         <div style="font-weight:800;font-size:15px;margin-bottom:14px">🛠 Amallar</div>
         <div style="display:flex;flex-direction:column;gap:10px">
           <button onclick="adminTriggerDraw()" style="background:linear-gradient(90deg,#6c63ff,#00d4ff);border:none;border-radius:12px;padding:13px;color:#fff;font-weight:700;font-size:14px;cursor:pointer">🎯 Qura Tashlash</button>
@@ -587,10 +591,42 @@ function restoreUI() {
   }
 
   if (state.drawDone && state.schedule.length > 0) {
-    renderScheduleCard(state.schedule);
-    if (typeof renderMatches === 'function') renderMatches();
-    if (typeof updateStats === 'function') updateStats();
+    // Har safar schedule dan o'z matchlarini qurib ol
+    buildMyMatches();
+    renderMatches();
+    updateStats();
   }
+}
+
+function buildMyMatches() {
+  if (!state.joined || !state.joinedTeam || !state.schedule.length) return;
+  var myTeamIndex = state.joinedTeam.index;
+  // Avvalgi tasdiqlangan natijalarni saqlash
+  var savedResults = {};
+  if (state.matches) {
+    state.matches.forEach(function(m) {
+      savedResults[m.round] = { myScore: m.myScore, oppScore: m.oppScore, status: m.status };
+    });
+  }
+  state.matches = [];
+  state.schedule.forEach(function(match) {
+    if (match.home === myTeamIndex || match.away === myTeamIndex) {
+      var isHome = match.home === myTeamIndex;
+      var oppIndex = isHome ? match.away : match.home;
+      var saved = savedResults[match.round] || {};
+      state.matches.push({
+        id: match.round,
+        round: match.round,
+        isHome: isHome,
+        oppIndex: oppIndex,
+        opponent: TEAMS[oppIndex].name,
+        oppLogo: TEAMS[oppIndex].logo,
+        myScore: saved.myScore !== undefined ? saved.myScore : null,
+        oppScore: saved.oppScore !== undefined ? saved.oppScore : null,
+        status: saved.status || 'pending_score'
+      });
+    }
+  });
 }
 
 // ---- TELEGRAM USER ----
@@ -1140,24 +1176,75 @@ function initAdmin() {
 function renderAdminTab() {
   loadSharedState(function() {
     document.getElementById('admin-count').textContent = state.players.length;
+
+    // O'yinchilar ro'yxati
     var list = document.getElementById('admin-players-list');
     if (state.players.length === 0) {
       list.innerHTML = '<div style="color:#556699;font-size:13px;text-align:center;padding:10px">O\'yinchilar yo\'q</div>';
+    } else {
+      list.innerHTML = state.players.map(function(p, i) {
+        var t = TEAMS[p.teamIndex];
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1e2545">' +
+          '<div style="display:flex;align-items:center;gap:10px">' +
+            '<img src="' + t.logo + '" style="width:28px;height:28px;object-fit:contain">' +
+            '<div>' +
+              '<div style="font-size:13px;font-weight:700">' + t.name + '</div>' +
+              '<div style="font-size:11px;color:#556699">' + (p.username || p.name) + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<button onclick="adminRemovePlayer(' + i + ')" style="background:#2a0a0a;border:1px solid #e74c3c55;border-radius:8px;padding:5px 10px;color:#e74c3c;font-size:11px;font-weight:700;cursor:pointer">O\'chirish</button>' +
+        '</div>';
+      }).join('');
+    }
+
+    // Barcha turlar va matchlar
+    var scheduleEl = document.getElementById('admin-schedule');
+    if (!state.drawDone || !state.schedule.length) {
+      scheduleEl.innerHTML = '<div style="color:#556699;font-size:13px;text-align:center;padding:10px">Qura hali tashlanmagan</div>';
       return;
     }
-    list.innerHTML = state.players.map(function(p, i) {
-      var t = TEAMS[p.teamIndex];
-      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1e2545">' +
-        '<div style="display:flex;align-items:center;gap:10px">' +
-          '<img src="' + t.logo + '" style="width:28px;height:28px;object-fit:contain">' +
-          '<div>' +
-            '<div style="font-size:13px;font-weight:700">' + t.name + '</div>' +
-            '<div style="font-size:11px;color:#556699">' + (p.username || p.name) + '</div>' +
+
+    var rounds = {};
+    state.schedule.forEach(function(m) {
+      if (!rounds[m.round]) rounds[m.round] = [];
+      rounds[m.round].push(m);
+    });
+
+    var html = '';
+    Object.keys(rounds).map(Number).sort(function(a,b){return a-b;}).forEach(function(round) {
+      html += '<div style="font-size:11px;font-weight:700;color:#556699;letter-spacing:1px;margin:12px 0 8px">' + round + '-TUR</div>';
+      rounds[round].forEach(function(match) {
+        var home = TEAMS[match.home];
+        var away = TEAMS[match.away];
+        var homePlayer = state.players.find(function(p){ return p.teamIndex === match.home; });
+        var awayPlayer = state.players.find(function(p){ return p.teamIndex === match.away; });
+        // Natijani allMatches dan ol
+        var key = Math.min(match.home, match.away) + '_' + Math.max(match.home, match.away) + '_' + match.round;
+        var result = state.allMatches && state.allMatches[key];
+        var scoreStr = result ? '<span style="color:#00d4ff;font-weight:700">' + result.myScore + ':' + result.oppScore + '</span>' : '<span style="color:#334466">— : —</span>';
+
+        html += '<div style="background:#0d1225;border-radius:10px;padding:10px 12px;margin-bottom:6px">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px">' +
+            '<div style="display:flex;align-items:center;gap:6px;flex:1">' +
+              '<img src="' + home.logo + '" style="width:20px;height:20px;object-fit:contain">' +
+              '<div>' +
+                '<div style="font-size:11px;font-weight:700">' + home.name + '</div>' +
+                '<div style="font-size:10px;color:#556699">' + (homePlayer ? homePlayer.username||homePlayer.name : '—') + '</div>' +
+              '</div>' +
+            '</div>' +
+  '<div style="font-size:13px;font-weight:900;padding:0 8px">' + scoreStr + '</div>' +
+            '<div style="display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end">' +
+              '<div style="text-align:right">' +
+                '<div style="font-size:11px;font-weight:700">' + away.name + '</div>' +
+                '<div style="font-size:10px;color:#556699">' + (awayPlayer ? awayPlayer.username||awayPlayer.name : '—') + '</div>' +
+              '</div>' +
+              '<img src="' + away.logo + '" style="width:20px;height:20px;object-fit:contain">' +
+            '</div>' +
           '</div>' +
-        '</div>' +
-        '<button onclick="adminRemovePlayer(' + i + ')" style="background:#2a0a0a;border:1px solid #e74c3c55;border-radius:8px;padding:5px 10px;color:#e74c3c;font-size:11px;font-weight:700;cursor:pointer">O\'chirish</button>' +
-      '</div>';
-    }).join('');
+        '</div>';
+      });
+    });
+    scheduleEl.innerHTML = html;
   });
 }
 
