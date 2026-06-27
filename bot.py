@@ -49,6 +49,17 @@ def send_msg(chat_id, text):
         import time; time.sleep(0.05)
     except Exception as e:
         log.warning(f'Xabar yuborilmadi {chat_id}: {e}')
+        # Username yo'q bo'lsa adminga xabar
+        if 'username' in str(e).lower() or 'chat not found' in str(e).lower():
+            try:
+                bot.send_message('@yusupbaevvvv',
+                    f"⚠️ <b>Xabar yuborilmadi!</b>\n"
+                    f"👤 {chat_id}\n"
+                    f"❌ Username yo'q yoki bot blokda",
+                    parse_mode='HTML'
+                )
+            except:
+                pass
 
 def get_team_name(index):
     try:
@@ -175,6 +186,24 @@ def job_reminder():
 def index():
     return 'eF Warriors bot ishlayapti ✅'
 
+@app.route('/open-rounds')
+def open_rounds():
+    """Admin: qo'lda turlarni ochish"""
+    job_midnight()
+    return 'Turlar ochildi ✅'
+
+# ---- STARTUP: Agar openedRounds bo'sh bo'lsa, birinchi 2 turni och ----
+def startup_check():
+    try:
+        data = get_data()
+        if data.get('drawDone') and not data.get('openedRounds'):
+            log.info('[STARTUP] openedRounds bo\'sh — birinchi 2 tur ochilmoqda...')
+            job_midnight()
+        else:
+            log.info(f'[STARTUP] Ochiq turlar: {data.get("openedRounds", [])}')
+    except Exception as e:
+        log.error(f'[STARTUP] Xato: {e}')
+
 # ---- MAIN ----
 if __name__ == '__main__':
     scheduler = BackgroundScheduler(timezone='Asia/Tashkent')
@@ -183,6 +212,10 @@ if __name__ == '__main__':
     scheduler.start()
     log.info('✅ eF Warriors bot ishga tushdi!')
     log.info('⏰ 00:00 — turlar | 23:30 — eslatma')
+
+    # Startup: agar turlar ochilmagan bo'lsa, hozir och
+    startup_check()
+
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
-    
+        
