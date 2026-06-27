@@ -214,10 +214,7 @@
         <button class="join-btn" id="join-btn">+ Qo'shilish</button>
       </div>
     </div>
-    <div class="card" id="schedule-card" style="display:none">
-      <div style="font-weight:800;font-size:15px;margin-bottom:14px">📅 Jadval</div>
-      <div id="schedule-list"></div>
-    </div>
+
 
     <!-- QOIDALAR -->
     <div class="card">
@@ -635,7 +632,11 @@ document.querySelector('.bottom-nav').addEventListener('click', function(e) {
   dot.className = 'nav-dot';
   item.appendChild(dot);
 
-  if (tab === 'profil') renderProfile();
+  if (tab === 'profil') {
+    renderProfile();
+    renderMatches();
+    updateStats();
+  }
   if (tab === 'reyting') {
     showLoader('Yangilanmoqda...');
     loadSharedState(function() {
@@ -644,6 +645,31 @@ document.querySelector('.bottom-nav').addEventListener('click', function(e) {
     });
   }
   if (tab === 'admin' && isAdmin()) renderAdminTab();
+});
+
+document.getElementById('score-close').addEventListener('click', function() {
+  document.getElementById('score-overlay').classList.add('hidden');
+});
+
+document.getElementById('submit-score-btn').addEventListener('click', function() {
+  var myScore = parseInt(document.getElementById('input-my').value);
+  var oppScore = parseInt(document.getElementById('input-opp').value);
+  if (isNaN(myScore) || isNaN(oppScore) || myScore < 0 || oppScore < 0) {
+    alert('Iltimos, to\'g\'ri natija kiriting!');
+    return;
+  }
+  var match = state.matches.find(function(m) { return m.id === currentMatchId; });
+  if (!match) return;
+  match.myScore = myScore;
+  match.oppScore = oppScore;
+  match.status = 'pending_confirm';
+  document.getElementById('score-overlay').classList.add('hidden');
+  showLoader('Saqlanmoqda...');
+  saveState(function() {
+    hideLoader();
+    renderMatches();
+    updateStats();
+  });
 });
 
 // ---- BUILD TEAM GRID ----
@@ -753,7 +779,7 @@ function triggerDraw() {
           opponent: TEAMS[oppIndex].name,
           oppLogo: TEAMS[oppIndex].logo,
           myScore: null,
-      oppScore: null,
+          oppScore: null,
           status: 'pending_score'
         });
       }
@@ -862,6 +888,137 @@ function renderScheduleCard(schedule) {
       '</div>';
     list.appendChild(item);
   });
+}
+
+// ---- NATIJA KIRITISH OVERLAY ----
+var currentMatchId = null;
+
+function openScoreModal(matchId) {
+  currentMatchId = matchId;
+  var match = state.matches.find(function(m) { return m.id === matchId; });
+  if (!match) return;
+  var myTeam = state.joinedTeam;
+  document.getElementById('score-my-logo').src = myTeam.logo;
+  document.getElementById('score-opp-logo').src = match.oppLogo;
+  document.getElementById('score-my-name').textContent = myTeam.name;
+  document.getElementById('score-opp-name').textContent = match.opponent;
+  document.getElementById('input-my').value = match.myScore !== null ? match.myScore : '';
+  document.getElementById('input-opp').value = match.oppScore !== null ? match.oppScore : '';
+  document.getElementById('score-overlay').classList.remove('hidden');
+}
+
+function renderMatches() {
+  var el = document.getElementById('matches-list');
+  if (!state.drawDone || !state.joined || !state.joinedTeam) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Qura tashlanganidan keyin ko\'rinadi</div>';
+    return;
+  }
+
+  // Barcha raqiblarni tur bo'yicha ko'rsatish
+  var myTeamIndex = state.joinedTeam.index;
+  var html = '';
+
+  // Turlar bo'yicha guruhlash
+  var rounds = {};
+  state.matches.forEach(function(m) {
+    if (!rounds[m.round]) rounds[m.round] = m;
+  });
+
+  var roundKeys = Object.keys(rounds).map(Number).sort(function(a,b){return a-b;});
+
+  roundKeys.forEach(function(round) {
+    var match = rounds[round];
+    var oppPlayer = state.players.find(function(p){ return p.teamIndex === match.oppIndex; });
+    var oppUsername = oppPlayer ? (oppPlayer.username || oppPlayer.name) : '';
+
+    var statusHtml = '';
+    if (match.status === 'confirmed') {
+      statusHtml = '<div class="confirmed-label">✅ ' + match.myScore + ' — ' + match.oppScore + ' Tasdiqlangan</div>';
+    } else if (match.status === 'pending_confirm') {
+      statusHtml = '<div class="pending-row">' +
+        '<div class="pending-label">⏳ Tasdiq kutilmoqda</div>' +
+        '<div class="confirm-btn" onclick="confirmMatch(' + match.id + ')">✅ Tasdiqlash</div>' +
+      '</div>';
+    } else {
+      statusHtml =
+        '<button class="action-btn" onclick="openScoreModal(' + match.id + ')">📝 Natija kiritish</button>';
+    }
+
+    html += '<div class="match-card">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+        '<span style="font-size:10px;color:#556699;font-weight:700">' + round + '-tur</span>' +
+        (oppUsername ? '<a href="https://t.me/' + oppUsername.replace('@','') + '" target="_blank" style="font-size:11px;color:#00d4ff;text-decoration:none;background:#0d1225;border:1px solid #1e2545;border-radius:8px;padding:4px 10px">✉️ ' + oppUsername + '</a>' : '') +
+      '</div>' +
+      '<div class="match-teams">' +
+        '<div class="team-side">' +
+          '<img class="team-logo" src="' + state.joinedTeam.logo + '">' +
+          '<span style="font-size:11px;font-weight:700;color:#00d4ff">' + state.joinedTeam.name + '</span>' +
+        '</div>' +
+        '<div class="score-area">' +
+          '<span class="score-num' + (match.status==='confirmed'?' confirmed':'') + '">' + (match.myScore !== null ? match.myScore : '—') + '</span>' +
+          '<span class="score-sep">:</span>' +
+          '<span class="score-num' + (match.status==='confirmed'?' confirmed':'') + '">' + (match.oppScore !== null ? match.oppScore : '—') + '</span>' +
+        '</div>' +
+        '<div class="team-side">' +
+          '<img class="team-logo" src="' + match.oppLogo + '">' +
+          '<span style="font-size:11px;font-weight:700">' + match.opponent + '</span>' +
+        '</div>' +
+      '</div>' +
+      statusHtml +
+    '</div>';
+  });
+
+  el.innerHTML = html || '<div class="empty-state"><div class="empty-icon">📋</div>O\'yinlar yo\'q</div>';
+}
+
+function confirmMatch(matchId) {
+  var match = state.matches.find(function(m) { return m.id === matchId; });
+  if (!match) return;
+  match.status = 'confirmed';
+
+  // allMatches ga ham yoz
+  if (!state.allMatches) state.allMatches = {};
+  var key = Math.min(state.joinedTeam.index, match.oppIndex) + '_' + Math.max(state.joinedTeam.index, match.oppIndex) + '_' + match.round;
+  state.allMatches[key] = { confirmed: true, myScore: match.myScore, oppScore: match.oppScore };
+
+  showLoader('Saqlanmoqda...');
+  saveState(function() {
+    hideLoader();
+    renderMatches();
+    updateStats();
+    renderStandings();
+  });
+}
+
+function updateStats() {
+  if (!state.joined || !state.joinedTeam) return;
+  var g=0, d=0, m=0;
+  state.matches.forEach(function(match) {
+    if (match.status === 'confirmed' && match.myScore !== null) {
+      if (match.myScore > match.oppScore) g++;
+      else if (match.myScore === match.oppScore) d++;
+      else m++;
+    }
+  });
+  // Reyting jadvalida o'rin
+  var myTeamIdx = state.joinedTeam.index;
+  var rows = state.players.map(function(p, i) {
+    var s = getPlayerStats(i);
+    return { teamIndex: p.teamIndex, pts: s.g*3+s.d, gd: s.gf-s.ga };
+  });
+  rows.sort(function(a,b){ return b.pts!==a.pts ? b.pts-a.pts : b.gd-a.gd; });
+  var rank = rows.findIndex(function(r){ return r.teamIndex === myTeamIdx; }) + 1;
+
+  var rankEl = document.getElementById('stat-rank');
+  var winsEl = document.getElementById('stat-wins');
+  var drawsEl = document.getElementById('stat-draws');
+  var lossesEl = document.getElementById('stat-losses');
+  if (rankEl) rankEl.textContent = rank || '—';
+  if (winsEl) winsEl.textContent = g;
+  if (drawsEl) drawsEl.textContent = d;
+  if (lossesEl) lossesEl.textContent = m;
+
+  [rankEl,winsEl,drawsEl,lossesEl].forEach(function(el){ if(el) el.classList.add('active-stat'); });
 }
 
 function getPlayerStats(playerIndex) {
