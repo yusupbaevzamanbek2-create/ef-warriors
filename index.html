@@ -277,6 +277,26 @@
 
   <!-- PROFIL -->
   <div class="tab" id="tab-profil">
+  <div style="padding:4px 2px">
+      <div class="section-title">REYTING JADVALI</div>
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <div style="background:linear-gradient(135deg,#6c63ff,#00d4ff);border-radius:20px;padding:7px 18px;font-size:13px;font-weight:700">APL</div>
+      </div>
+      <div class="table-header">
+        <div>#</div><div>O'yinchi</div>
+        <div style="text-align:center">B</div><div style="text-align:center">G</div>
+        <div style="text-align:center">D</div><div style="text-align:center">M</div>
+        <div style="text-align:center">GF</div><div style="text-align:center">GA</div>
+        <div style="text-align:center">GD</div>
+      </div>
+      <div id="standings-list">
+        <div class="empty-state"><div class="empty-icon">📋</div>Hali ma'lumot yo'q</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFIL -->
+  <div class="tab" id="tab-profil">
   <div class="profile-card" id="profile-card">
       <div class="profile-avatar" id="profile-avatar">👤</div>
       <div>
@@ -566,6 +586,8 @@ function saveState(callback) {
 loadMyState();
 showLoader('Yuklanmoqda...');
 loadSharedState(function(ok) {
+  // Server xato bersa — reset qilmaymiz
+  if (!ok) { hideLoader(); restoreUI(); renderStandings(); return; }
   // Agar joined bo'lsam lekin players ro'yxatida yo'q bo'lsam — reset
   if (state.joined && state.joinedTeam) {
     var myUsername = getUserUsername();
@@ -1209,7 +1231,7 @@ function renderStandings() {
       '<span style="font-size:11px;text-align:center;color:#00c97a">' + s.g + '</span>' +
       '<span style="font-size:11px;text-align:center;color:#f5a623">' + s.d + '</span>' +
       '<span style="font-size:11px;text-align:center;color:#e74c3c">' + s.m + '</span>' +
-      '<span style="font-size:11px;text-align:center;color:#aab">' + s.gf + '</span>' +
+    '<span style="font-size:11px;text-align:center;color:#aab">' + s.gf + '</span>' +
       '<span style="font-size:11px;text-align:center;color:#aab">' + s.ga + '</span>' +
       '<span style="font-size:11px;font-weight:700;text-align:center;color:' + (gd >= 0 ? '#00c97a' : '#e74c3c') + '">' + (state.drawDone ? gdStr : '—') + '</span>' +
     '</div>';
@@ -1333,7 +1355,8 @@ function adminTriggerDraw() {
 }
 
 function adminReset() {
-  if (!confirm('BARCHA ma\'lumotlar o\'chadi! Ishonchingiz komilmi?')) return;
+  var confirmText = prompt('Tasdiqlash uchun "RESET" deb yozing:');
+  if (confirmText !== 'RESET') { alert('Bekor qilindi.'); return; }
   state.participants = 0;
   state.drawDone = false;
   state.schedule = [];
