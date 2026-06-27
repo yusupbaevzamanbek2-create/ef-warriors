@@ -277,7 +277,7 @@
 
   <!-- PROFIL -->
   <div class="tab" id="tab-profil">
-    <div class="profile-card" id="profile-card">
+  <div class="profile-card" id="profile-card">
       <div class="profile-avatar" id="profile-avatar">👤</div>
       <div>
         <div class="profile-name" id="profile-name">— —</div>
@@ -568,14 +568,41 @@ showLoader('Yuklanmoqda...');
 loadSharedState(function(ok) {
   // Agar joined bo'lsam lekin players ro'yxatida yo'q bo'lsam — reset
   if (state.joined && state.joinedTeam) {
-    var stillInList = state.players.some(function(p) {
-      return p.teamIndex === state.joinedTeam.index;
-    });
-    if (!stillInList) {
+    var myUsername = getUserUsername();
+    var myEntry = null;
+
+    // 1. Username bo'yicha o'zini topadi
+    if (myUsername) {
+      myEntry = state.players.find(function(p) {
+        return p.username && p.username === myUsername;
+      });
+    }
+
+    // 2. Username topilmasa — o'sha teamIndex boshqa odamda emasmi tekshir
+    if (!myEntry) {
+      var teamOwner = state.players.find(function(p) {
+        return p.teamIndex === state.joinedTeam.index;
+      });
+      if (teamOwner && myUsername && teamOwner.username !== myUsername) {
+        myEntry = null; // boshqa odam olgan — reset
+      } else if (!teamOwner) {
+        myEntry = null; // umuman yo'q — reset
+      }
+    }
+
+    if (myEntry) {
+      // O'zi topildi — joinedTeam ni serverdan yangilaydi
+      state.joinedTeam = { index: myEntry.teamIndex, name: TEAMS[myEntry.teamIndex].name, logo: TEAMS[myEntry.teamIndex].logo };
+      saveMyState();
+    } else {
+      // Topilmadi — reset
       state.joined = false;
       state.joinedTeam = null;
       state.matches = [];
       saveMyState();
+      setTimeout(function() {
+        alert('\u26a0\ufe0f Sizning jamoangiz ro\'yxatdan o\'chirilgan. Iltimos qayta ro\'yxatdan o\'ting.');
+      }, 500);
     }
   }
   hideLoader();
@@ -653,7 +680,7 @@ function getUserName() {
 }
 function getUserUsername() {
   if (tgUser && tgUser.username) return '@' + tgUser.username;
-  return '@username';
+  return null;
 }
 
 // ---- BOTTOM NAV ----
