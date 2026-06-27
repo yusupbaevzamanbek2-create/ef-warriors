@@ -523,6 +523,8 @@ function loadSharedState(callback) {
     state.schedule = d.schedule || [];
     state.players = d.players || [];
     state.allMatches = d.allMatches || {};
+    state.openedRounds = d.openedRounds || [];
+    state.currentRounds = d.currentRounds || [];
     if (callback) callback(true);
   }).catch(function() { if (callback) callback(false); });
 }
@@ -954,8 +956,8 @@ function renderMatches() {
   // Barcha raqiblarni tur bo'yicha ko'rsatish
   var myTeamIndex = state.joinedTeam.index;
   var html = '';
+  var openedRounds = state.openedRounds || [];
 
-  // Turlar bo'yicha guruhlash
   var rounds = {};
   state.matches.forEach(function(m) {
     if (!rounds[m.round]) rounds[m.round] = m;
@@ -966,11 +968,14 @@ function renderMatches() {
   roundKeys.forEach(function(round) {
     var match = rounds[round];
     var oppPlayer = state.players.find(function(p){ return p.teamIndex === match.oppIndex; });
-    var oppUsername = oppPlayer ? (oppPlayer.username || oppPlayer.name) : '';
+    var oppUsername = oppPlayer ? (oppPlayer.username || '') : '';
+    var isOpen = openedRounds.length > 0 && openedRounds.indexOf(round) !== -1;
 
     var statusHtml = '';
-    if (match.status === 'confirmed') {
-      statusHtml = '<div class="confirmed-label">✅ ' + match.myScore + ' — ' + match.oppScore + ' Tasdiqlangan</div>';
+    if (!isOpen) {
+      statusHtml = '<div style="background:#0d1225;border-radius:10px;padding:9px 0;text-align:center;font-size:12px;color:#334466;font-weight:700">🔒 Hali ochilmagan</div>';
+    } else if (match.status === 'confirmed') {
+      statusHtml = '<div class="confirmed-label">✅ ' + match.myScore + ' — ' + match.oppScore + (match.autoConfirmed ? ' (auto)' : ' Tasdiqlangan') + '</div>';
     } else if (match.status === 'pending_confirm') {
       statusHtml = '<div class="pending-row">' +
         '<div class="pending-label">⏳ Tasdiq kutilmoqda</div>' +
@@ -1236,7 +1241,7 @@ function renderAdminTab() {
         // Natijani allMatches dan ol
         var key = Math.min(match.home, match.away) + '_' + Math.max(match.home, match.away) + '_' + match.round;
         var result = state.allMatches && state.allMatches[key];
-  var scoreStr = result ? '<span style="color:#00d4ff;font-weight:700">' + result.myScore + ':' + result.oppScore + '</span>' : '<span style="color:#334466">— : —</span>';
+        var scoreStr = result ? '<span style="color:#00d4ff;font-weight:700">' + result.myScore + ':' + result.oppScore + '</span>' : '<span style="color:#334466">— : —</span>';
 
         html += '<div style="background:#0d1225;border-radius:10px;padding:10px 12px;margin-bottom:6px">' +
           '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px">' +
