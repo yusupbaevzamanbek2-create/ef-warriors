@@ -498,7 +498,7 @@ function hideLoader() {
 // ---- UMUMIY MA'LUMOTLARNI SAQLASH (JSONBin) ----
 function saveSharedState(callback) {
   var sharedData = {
-    participants: state.participants,
+    participants: state.players.length,
     drawDone: state.drawDone,
     schedule: state.schedule,
     players: state.players,
@@ -523,7 +523,8 @@ function loadSharedState(callback) {
     headers: { 'X-Master-Key': JSONBIN_SECRET }
   }).then(function(r) { return r.json(); }).then(function(data) {
     var d = data.record;
-    state.participants = d.participants || 0;
+    state.players = d.players || [];
+    state.participants = state.players.length;
     state.drawDone = d.drawDone || false;
     state.schedule = d.schedule || [];
     state.players = d.players || [];
