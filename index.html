@@ -580,18 +580,19 @@ function restoreUI() {
   document.getElementById('participants').textContent = state.participants;
   document.getElementById('progress-fill').style.width = (state.participants / MAX_PLAYERS * 100) + '%';
 
+  var joinArea = document.getElementById('join-area');
   if (state.joined && state.joinedTeam) {
     var team = state.joinedTeam;
-    var joinArea = document.getElementById('join-area');
     joinArea.innerHTML = '<div class="joined-btn">✅ ' + team.name + ' — Qo\'shildingiz</div>';
     document.getElementById('profile-avatar').innerHTML = '<img class="profile-logo" src="' + team.logo + '" alt="' + team.name + '">';
     document.getElementById('profile-name').textContent = team.name;
     document.getElementById('profile-name').className = 'profile-name joined';
     document.getElementById('profile-user').textContent = getUserUsername();
+  } else if (state.participants >= MAX_PLAYERS) {
+    joinArea.innerHTML = '<div style="background:#1a0a00;border:1px solid #f5a62355;border-radius:12px;padding:13px 0;text-align:center;font-weight:700;font-size:15px;color:#f5a623">🔒 Liga to\'ldi</div>';
   }
 
   if (state.drawDone && state.schedule.length > 0) {
-    // Har safar schedule dan o'z matchlarini qurib ol
     buildMyMatches();
     renderMatches();
     updateStats();
@@ -974,10 +975,10 @@ function renderMatches() {
       statusHtml = '<div class="pending-row">' +
         '<div class="pending-label">⏳ Tasdiq kutilmoqda</div>' +
         '<div class="confirm-btn" onclick="confirmMatch(' + match.id + ')">✅ Tasdiqlash</div>' +
+        '<div onclick="rejectMatch(' + match.id + ')" style="background:#2a0a0a;border:1px solid #e74c3c55;border-radius:10px;padding:9px 14px;text-align:center;font-size:12px;color:#e74c3c;font-weight:700;cursor:pointer;white-space:nowrap">❌ Rad</div>' +
       '</div>';
     } else {
-      statusHtml =
-        '<button class="action-btn" onclick="openScoreModal(' + match.id + ')">📝 Natija kiritish</button>';
+      statusHtml = '<button class="action-btn" onclick="openScoreModal(' + match.id + ')">📝 Natija kiritish</button>';
     }
 
     html += '<div class="match-card">' +
@@ -1023,6 +1024,20 @@ function confirmMatch(matchId) {
     renderMatches();
     updateStats();
     renderStandings();
+  });
+}
+
+function rejectMatch(matchId) {
+  if (!confirm('Natijani rad etasizmi? O\'yin qayta kiritish kerak bo\'ladi.')) return;
+  var match = state.matches.find(function(m) { return m.id === matchId; });
+  if (!match) return;
+  match.myScore = null;
+  match.oppScore = null;
+  match.status = 'pending_score';
+  showLoader('Saqlanmoqda...');
+  saveState(function() {
+    hideLoader();
+    renderMatches();
   });
 }
 
@@ -1221,7 +1236,7 @@ function renderAdminTab() {
         // Natijani allMatches dan ol
         var key = Math.min(match.home, match.away) + '_' + Math.max(match.home, match.away) + '_' + match.round;
         var result = state.allMatches && state.allMatches[key];
-        var scoreStr = result ? '<span style="color:#00d4ff;font-weight:700">' + result.myScore + ':' + result.oppScore + '</span>' : '<span style="color:#334466">— : —</span>';
+  var scoreStr = result ? '<span style="color:#00d4ff;font-weight:700">' + result.myScore + ':' + result.oppScore + '</span>' : '<span style="color:#334466">— : —</span>';
 
         html += '<div style="background:#0d1225;border-radius:10px;padding:10px 12px;margin-bottom:6px">' +
           '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px">' +
@@ -1232,7 +1247,7 @@ function renderAdminTab() {
                 '<div style="font-size:10px;color:#556699">' + (homePlayer ? homePlayer.username||homePlayer.name : '—') + '</div>' +
               '</div>' +
             '</div>' +
-  '<div style="font-size:13px;font-weight:900;padding:0 8px">' + scoreStr + '</div>' +
+            '<div style="font-size:13px;font-weight:900;padding:0 8px">' + scoreStr + '</div>' +
             '<div style="display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end">' +
               '<div style="text-align:right">' +
                 '<div style="font-size:11px;font-weight:700">' + away.name + '</div>' +
