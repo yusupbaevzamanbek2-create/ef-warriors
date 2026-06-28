@@ -1245,7 +1245,7 @@ function renderStandings() {
 }
 
 // ---- ADMIN ----
-var ADMIN_USERNAME = '@yusupbaevvvv';
+ var ADMIN_USERNAME = '@yusupbaevvvv';
 
 function isAdmin() {
   return getUserUsername() === ADMIN_USERNAME;
@@ -1282,6 +1282,20 @@ function renderAdminTab() {
           '<button onclick="adminRemovePlayer(' + i + ')" style="background:#2a0a0a;border:1px solid #e74c3c55;border-radius:8px;padding:5px 10px;color:#e74c3c;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;margin-left:8px">O\'chirish</button>' +
         '</div>';
       }).join('');
+    }
+
+    // Qura tugmasini drawDone bo'lsa block qil
+    var drawBtn = document.querySelector('[onclick="adminTriggerDraw()"]');
+    if (drawBtn) {
+      if (state.drawDone) {
+        drawBtn.style.opacity = '0.4';
+        drawBtn.style.pointerEvents = 'none';
+        drawBtn.textContent = '✅ Qura Tashlangan';
+      } else {
+        drawBtn.style.opacity = '1';
+        drawBtn.style.pointerEvents = 'auto';
+        drawBtn.textContent = '🎯 Qura Tashlash';
+      }
     }
 
     // Barcha turlar va matchlar
@@ -1349,8 +1363,10 @@ function adminRemovePlayer(index) {
 }
 
 function adminTriggerDraw() {
+  if (state.drawDone) { alert('Qura allaqachon tashlangan!'); return; }
   if (state.players.length < 2) { alert('Kamida 2 ta o\'yinchi kerak!'); return; }
-  if (!confirm('Qura tashlansinmi?')) return;
+  var c = prompt('Tasdiqlash uchun "QURA" deb yozing:');
+  if (c !== 'QURA') { alert('Bekor qilindi.'); return; }
   triggerDraw();
 }
 
