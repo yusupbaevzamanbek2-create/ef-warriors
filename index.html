@@ -919,7 +919,8 @@ function triggerDraw() {
     state.openedRounds = allRounds.slice(0, 2);
     state.currentRounds = allRounds.slice(0, 2);
 
-    saveState();
+  saveMyState();
+saveSharedState(function() {});
   }, 2000);
 }
 
