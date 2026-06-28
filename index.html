@@ -46,16 +46,20 @@
   .pending-label { flex: 1; background: #1a2040; border-radius: 10px; padding: 9px 0; text-align: center; font-size: 12px; color: #f5a623; font-weight: 700; }
   .confirm-btn { background: #00c97a22; border: 1px solid #00c97a; border-radius: 10px; padding: 9px 14px; text-align: center; font-size: 12px; color: #00c97a; font-weight: 700; cursor: pointer; white-space: nowrap; }
   .confirmed-label { background: #002a18; border-radius: 10px; padding: 9px 0; text-align: center; font-size: 12px; color: #00c97a; font-weight: 700; width: 100%; }
-  .profile-card { background: linear-gradient(135deg, #0f1535, #1a2060); border: 1px solid #2a3a80; border-radius: 18px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; }
-  .profile-avatar { width: 60px; height: 60px; background: #1a2040; border: 2px dashed #2a3a70; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #334466; flex-shrink: 0; }
-  .profile-logo { width: 56px; height: 56px; object-fit: contain; flex-shrink: 0; border-radius: 50%; }
-  .profile-name { font-weight: 800; font-size: 17px; margin-bottom: 4px; }
-  .profile-user { font-size: 13px; color: #556699; }
-  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-  .stat-box { background: #111830; border: 1px solid #1e2a50; border-radius: 12px; padding: 14px 8px; text-align: center; }
-  .stat-val { font-size: 20px; font-weight: 900; color: #334466; }
+  .profile-card { background: linear-gradient(135deg, #0d1225, #151d3a); border: 1px solid #1e2a50; border-radius: 20px; padding: 22px 18px; margin-bottom: 16px; position: relative; overflow: hidden; }
+  .profile-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; background: radial-gradient(circle, #00d4ff22, transparent); border-radius: 50%; }
+  .profile-top { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+  .profile-avatar { width: 68px; height: 68px; background: #1a2040; border: 2px solid #00d4ff44; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #334466; flex-shrink: 0; box-shadow: 0 0 16px #00d4ff22; }
+  .profile-logo { width: 64px; height: 64px; object-fit: contain; flex-shrink: 0; border-radius: 50%; }
+  .profile-name { font-weight: 900; font-size: 18px; margin-bottom: 4px; letter-spacing: 0.3px; }
+  .profile-user { font-size: 13px; color: #00d4ff; font-weight: 600; }
+  .profile-badge { display: inline-block; background: #0a1a3a; border: 1px solid #00d4ff33; border-radius: 20px; padding: 2px 10px; font-size: 10px; color: #556699; margin-top: 4px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 18px; }
+  .stat-box { background: linear-gradient(135deg, #0d1225, #111830); border: 1px solid #1e2a50; border-radius: 14px; padding: 14px 6px; text-align: center; transition: border-color 0.2s; }
+  .stat-box.highlight { border-color: #00d4ff44; background: linear-gradient(135deg, #0a1a30, #0d2040); }
+  .stat-val { font-size: 22px; font-weight: 900; color: #334466; }
   .stat-val.active-stat { color: #fff; }
-  .stat-label { font-size: 9px; color: #556699; margin-top: 4px; }
+  .stat-label { font-size: 9px; color: #445577; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
   .table-header { display: grid; grid-template-columns: 28px 1fr 42px 32px 32px 32px 32px 32px 42px; gap: 4px; padding: 8px 12px; background: #0d1225; border-radius: 10px; margin-bottom: 8px; font-size: 11px; color: #556699; font-weight: 700; }
   .empty-state { text-align: center; padding: 40px 20px; color: #334466; font-size: 13px; }
   .empty-icon { font-size: 36px; margin-bottom: 12px; }
@@ -260,27 +264,7 @@
     <div style="padding:4px 2px">
       <div class="section-title">REYTING JADVALI</div>
       <div style="display:flex;gap:8px;margin-bottom:20px">
-        <div style="background:linear-gradient(135deg,#6c63ff,#00d4ff);border-radius:20px;padding:7px 18px;font-size:13px;font-weight:700">APL</div>
-      </div>
-      <div class="table-header">
-        <div>#</div><div>O'yinchi</div>
-        <div style="text-align:center">B</div><div style="text-align:center">G</div>
-        <div style="text-align:center">D</div><div style="text-align:center">M</div>
-        <div style="text-align:center">GF</div><div style="text-align:center">GA</div>
-        <div style="text-align:center">GD</div>
-      </div>
-      <div id="standings-list">
-        <div class="empty-state"><div class="empty-icon">📋</div>Hali ma'lumot yo'q</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PROFIL -->
-  <div class="tab" id="tab-profil">
-  <div style="padding:4px 2px">
-      <div class="section-title">REYTING JADVALI</div>
-      <div style="display:flex;gap:8px;margin-bottom:20px">
-        <div style="background:linear-gradient(135deg,#6c63ff,#00d4ff);border-radius:20px;padding:7px 18px;font-size:13px;font-weight:700">APL</div>
+       <div style="background:linear-gradient(135deg,#6c63ff,#00d4ff);border-radius:20px;padding:7px 18px;font-size:13px;font-weight:700">APL</div>
       </div>
       <div class="table-header">
         <div>#</div><div>O'yinchi</div>
@@ -298,17 +282,20 @@
   <!-- PROFIL -->
   <div class="tab" id="tab-profil">
   <div class="profile-card" id="profile-card">
-      <div class="profile-avatar" id="profile-avatar">👤</div>
-      <div>
-        <div class="profile-name" id="profile-name">— —</div>
-        <div class="profile-user" id="profile-user">@username</div>
+      <div class="profile-top">
+        <div class="profile-avatar" id="profile-avatar">👤</div>
+        <div>
+          <div class="profile-name" id="profile-name">— —</div>
+          <div class="profile-user" id="profile-user"></div>
+          <div class="profile-badge">eF Warriors • APL Liga</div>
+        </div>
       </div>
-    </div>
-    <div class="stats-grid">
-      <div class="stat-box"><div class="stat-val" id="stat-rank">—</div><div class="stat-label">O'rin</div></div>
-      <div class="stat-box"><div class="stat-val" id="stat-wins">0</div><div class="stat-label">G'alaba</div></div>
-      <div class="stat-box"><div class="stat-val" id="stat-draws">0</div><div class="stat-label">Durang</div></div>
-      <div class="stat-box"><div class="stat-val" id="stat-losses">0</div><div class="stat-label">Mag'lubiyat</div></div>
+      <div class="stats-grid">
+        <div class="stat-box highlight"><div class="stat-val active-stat" id="stat-rank">—</div><div class="stat-label">O'rin</div></div>
+        <div class="stat-box"><div class="stat-val active-stat" id="stat-wins">0</div><div class="stat-label">G'alaba</div></div>
+        <div class="stat-box"><div class="stat-val active-stat" id="stat-draws">0</div><div class="stat-label">Durang</div></div>
+        <div class="stat-box"><div class="stat-val active-stat" id="stat-losses">0</div><div class="stat-label">Mag'lubiyat</div></div>
+      </div>
     </div>
     <div class="section-title">MENING O'YINLARIM</div>
     <div id="matches-list"></div>
@@ -919,8 +906,10 @@ function triggerDraw() {
     state.openedRounds = allRounds.slice(0, 2);
     state.currentRounds = allRounds.slice(0, 2);
 
-  saveMyState();
-saveSharedState(function() {});
+    saveMyState();
+    saveSharedState(function() {
+      // drawDone serverga saqlandi — tugma endi ishlaydi
+    });
   }, 2000);
 }
 
@@ -1201,17 +1190,22 @@ function renderProfile() {
   var nameEl = document.getElementById('profile-name');
   var userEl = document.getElementById('profile-user');
   var avatarEl = document.getElementById('profile-avatar');
+  var username = getUserUsername();
 
   if (state.joined && state.joinedTeam) {
     avatarEl.innerHTML = '<img class="profile-logo" src="' + state.joinedTeam.logo + '" alt="' + state.joinedTeam.name + '">';
     nameEl.textContent = state.joinedTeam.name;
     nameEl.className = 'profile-name joined';
   } else {
-    avatarEl.innerHTML = '👤';
-    nameEl.textContent = getUserName();
+    avatarEl.innerHTML = '⚽';
+    nameEl.textContent = getUserName() || '— —';
     nameEl.className = 'profile-name';
   }
-  userEl.textContent = getUserUsername();
+  if (username) {
+    userEl.innerHTML = '<a href="https://t.me/' + username.replace('@','') + '" target="_blank" style="color:#00d4ff;text-decoration:none">' + username + '</a>';
+  } else {
+    userEl.textContent = '';
+  }
 }
 
 function renderStandings() {
