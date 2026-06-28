@@ -541,6 +541,22 @@ function loadSharedState(callback) {
   }).catch(function() { if (callback) callback(false); });
 }
 
+ 
+// ---- Qura tashlangan lekin openedRounds bo'sh bo'lsa — avtomatik 1 va 2-turni och
+    if (state.drawDone && state.schedule.length && state.openedRounds.length === 0) {
+      var allR = [];
+      state.schedule.forEach(function(m) {
+        if (allR.indexOf(m.round) === -1) allR.push(m.round);
+      });
+      allR.sort(function(a,b){return a-b;});
+      state.openedRounds = allR.slice(0, 2);
+      state.currentRounds = allR.slice(0, 2);
+    }
+
+    if (callback) callback(true);
+  }).catch(function() { if (callback) callback(false); });
+ }
+
 // ---- SHAXSIY MA'LUMOTLARNI SAQLASH (localStorage) ----
 function saveMyState() {
   try {
