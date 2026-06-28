@@ -792,6 +792,35 @@ function buildTeamGrid() {
   });
 }
 
+// ---- DRAW CLOSE BUTTON ----
+document.getElementById('draw-close-btn').addEventListener('click', function() {
+  var btn = document.getElementById('draw-close-btn');
+  btn.textContent = 'Saqlanmoqda...';
+  btn.style.pointerEvents = 'none';
+
+  function closeDrawOverlay() {
+    document.getElementById('draw-overlay').classList.add('hidden');
+    btn.textContent = "Jadvalni Ko'rish";
+    btn.style.pointerEvents = 'auto';
+    document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
+    var adminNav = document.querySelector('[data-tab="admin"]');
+    if (adminNav) adminNav.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
+    var adminTab = document.getElementById('tab-admin');
+    if (adminTab) adminTab.classList.add('active');
+    renderAdminTab();
+  }
+
+  try {
+    saveSharedState(function() { closeDrawOverlay(); });
+  } catch(e) {
+    closeDrawOverlay();
+  }
+
+  // Xato bo'lsa ham 5 sekunddan song yopiladi
+  setTimeout(closeDrawOverlay, 5000);
+});
+
 // ---- JOIN BUTTON ----
 document.getElementById('join-btn').addEventListener('click', function() {
   if (state.participants >= MAX_PLAYERS) return;
@@ -838,12 +867,11 @@ document.getElementById('join-confirm-btn').addEventListener('click', function()
     hideLoader();
     renderScheduleCard([]);
     renderStandings();
-    if (state.participants >= MAX_PLAYERS) {
+    if (state.players.length >= MAX_PLAYERS && !state.drawDone) {
       setTimeout(triggerDraw, 500);
     }
   });
 });
- 
  
 // ---- DRAW LOGIC ----
 function triggerDraw() {
